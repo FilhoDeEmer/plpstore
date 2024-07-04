@@ -8,7 +8,7 @@ import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/cliente.dart';
 import 'package:plpstore/model/get_clientes.dart';
 import 'package:provider/provider.dart';
-
+// teste de git
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 

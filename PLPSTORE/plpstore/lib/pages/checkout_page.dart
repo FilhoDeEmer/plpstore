@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
@@ -6,7 +5,6 @@ import 'package:plpstore/components/badgee.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({Key? key}) : super(key: key);
@@ -18,52 +16,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   double price = 10.00;
   String? preferenceId;
-  Future<void> criarPreferenciaDePagamento() async {
-    const accessToken =
-        'APP_USR-6558376728906994-041714-06373b57e10b878abe198ed0914acf09-1728049498';
-    final url = Uri.parse('https://api.mercadopago.com/checkout/preferences');
-
-    Map<String, dynamic> body = {
-      "items": [
-        {
-          "title": "Pedido número : #15215",
-          "quantity": 1,
-          "currency_id": "BRL",
-          "unit_price": price
-        }
-      ],
-      "back_urls": {
-        "success": "myapp://payment-success",
-        "failure": "myapp://payment-failure",
-        "pending": "myapp://payment-pending",
-      },
-      "auto_return": "approved"
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-      print(response.body);
-      if (response.statusCode == 201) {
-        preferenceId = jsonDecode(response.body)['id'];
-        print('Preferência de pagamento criada com sucesso: $preferenceId');
-        _launchURL(context, preferenceId);
-        // Aqui você pode prosseguir com o processamento da preferência
-      } else {
-        print('Erro ao criar preferência de pagamento: ${response.statusCode}');
-        print(response.body);
-      }
-    } catch (e) {
-      print('Erro na requisição HTTP: $e');
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +60,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            criarPreferenciaDePagamento();
+            _launchURL(context);
           },
           child: const Text('Pagar com Mercado Pago'),
         ),
@@ -115,11 +68,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Future<void> _launchURL(BuildContext context, String? preferenceId) async {
+  Future<void> _launchURL(BuildContext context) async {
     try {
       await launchUrl(
         Uri.parse(
-            'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=$preferenceId'),
+            'http://192.168.1.8:3000/create-preference'),
         prefersDeepLink: true,
         customTabsOptions: CustomTabsOptions(
           colorSchemes: CustomTabsColorSchemes.defaults(

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/get_clientes.dart';
 import 'package:plpstore/utils/app_routes.dart';
@@ -18,6 +19,7 @@ class AuthForm extends StatefulWidget {
 }
 
 class _AuthFormState extends State<AuthForm> {
+  ValidarCpf validarCpf = ValidarCpf();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final _nameController = TextEditingController();
@@ -349,13 +351,15 @@ class _AuthFormState extends State<AuthForm> {
                     contentPadding: EdgeInsets.symmetric(vertical: 10),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: (_cpf) {
-                    final cpf = _cpf ?? '';
-                    if (cpf.isEmpty ) {
-                      return 'Informe um CPF válido.';
-                    }
-                    return null;
-                  },
+                  validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo obrigatório';
+                      }
+                      if (!validarCpf.validarCPF(value)) {
+                        return 'CPF inválido';
+                      }
+                      return null;
+                    },
                 ),
               const SizedBox(
                 height: 10,

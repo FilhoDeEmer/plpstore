@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:plpstore/components/badgee.dart';
@@ -14,11 +13,10 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  double price = 10.00;
-  String? preferenceId;
-  
   @override
   Widget build(BuildContext context) {
+    const id = '156318921315';
+    const price = '1.00';
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -60,7 +58,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            _launchURL(context);
+            _launchURL(context, id, price);
+            Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
           },
           child: const Text('Pagar com Mercado Pago'),
         ),
@@ -68,11 +67,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Future<void> _launchURL(BuildContext context) async {
+  Future<void> _launchURL(BuildContext context, String id, String price) async {
     try {
       await launchUrl(
         Uri.parse(
-            'http://192.168.1.8:3000/create-preference'),
+            'http://192.168.1.8:3000/create-preference?id=$id&price=$price'),
         prefersDeepLink: true,
         customTabsOptions: CustomTabsOptions(
           colorSchemes: CustomTabsColorSchemes.defaults(

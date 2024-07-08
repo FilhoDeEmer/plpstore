@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:intl/intl.dart';
+import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/cart_item.dart';
 import 'package:plpstore/model/gerar_pedido.dart';
 import 'package:plpstore/model/get_clientes.dart';
+import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
@@ -25,7 +28,7 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     _loadUserData();
   }
-
+  ValidarCpf validarCpf = ValidarCpf();
   final List<String> envio = <String>['PAC', 'Sedex', 'Retirar no Local'];
   String? _tipoEnvio;
   double valorFrete = 0;
@@ -85,6 +88,42 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
+  Future<void> _launchURL(BuildContext context, String id, String price) async {
+    try {
+      await launchUrl(
+        Uri.parse(
+            'http://192.168.1.8:3000/create-preference?id=$id&price=$price'),
+        prefersDeepLink: true,
+        customTabsOptions: CustomTabsOptions(
+          colorSchemes: CustomTabsColorSchemes.defaults(
+            toolbarColor: Colors.blue,
+          ),
+          animations: const CustomTabsAnimations(
+            startEnter: 'slide_up',
+            startExit: 'android:anim/fade_out',
+            endEnter: 'android:anim/fade_in',
+            endExit: 'slide_down',
+          ),
+          shareState: CustomTabsShareState.off,
+          urlBarHidingEnabled: true,
+          instantAppsEnabled: false,
+          showTitle: false,
+          closeButton: CustomTabsCloseButton(
+            icon: CustomTabsCloseButtonIcons.back,
+          ),
+        ),
+        safariVCOptions: SafariViewControllerOptions(
+          preferredBarTintColor: Theme.of(context).primaryColor,
+          preferredControlTintColor: Colors.white,
+          barCollapsingEnabled: true,
+          dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
+        ),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   String? _envioError;
   void _finalizarPedido() {
     setState(() {
@@ -114,9 +153,9 @@ class _OrderPageState extends State<OrderPage> {
       'produtos': produtos,
       'sessao': sessao,
       'sub_total': valorPedido,
-      'frete' : valorFrete,
-      'total' : valorTotal,
-      'pgto_entrega' : _tipoEnvio == 'Retirar no Local' ? 'Sim' : 'Não',
+      'frete': valorFrete,
+      'total': valorTotal,
+      'pgto_entrega': _tipoEnvio == 'Retirar no Local' ? 'Sim' : 'Não',
       'tipo_frete': _tipoEnvio == 'Retirar no Local' ? '' : _tipoEnvio,
     };
 
@@ -132,6 +171,10 @@ class _OrderPageState extends State<OrderPage> {
       GerarPedido gerarPedido = GerarPedido();
       gerarPedido.gerarPedido(pedidoJson);
     }
+    _launchURL(context, userProvider.getUserId() , valorTotal.toString());
+    cart.clean();
+    Navigator.of(context).pop;
+    Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
     // chamada da url passando o pedidoJson e tambem tem que verificar se _isFisrtTime é true para salvar os dados do cliente
     // tambem pode ser adicionado uma mensagem de verificação para perguntar se deseja salvar o novo endereço
   }
@@ -211,54 +254,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  bool validarCPF(String cpf) {
-    cpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
-
-    if (cpf.length != 11) {
-      return false;
-    }
-
-    if (cpf == '00000000000' ||
-        cpf == '11111111111' ||
-        cpf == '22222222222' ||
-        cpf == '33333333333' ||
-        cpf == '44444444444' ||
-        cpf == '55555555555' ||
-        cpf == '66666666666' ||
-        cpf == '77777777777' ||
-        cpf == '88888888888' ||
-        cpf == '99999999999') {
-      return false;
-    }
-
-    int soma = 0;
-    for (int i = 0; i < 9; i++) {
-      soma += int.parse(cpf[i]) * (10 - i);
-    }
-    int primeiroDigito = (soma * 10) % 11;
-    if (primeiroDigito == 10) {
-      primeiroDigito = 0;
-    }
-
-    if (int.parse(cpf[9]) != primeiroDigito) {
-      return false;
-    }
-
-    soma = 0;
-    for (int i = 0; i < 10; i++) {
-      soma += int.parse(cpf[i]) * (11 - i);
-    }
-    int segundoDigito = (soma * 10) % 11;
-    if (segundoDigito == 10) {
-      segundoDigito = 0;
-    }
-
-    if (int.parse(cpf[10]) != segundoDigito) {
-      return false;
-    }
-
-    return true;
-  }
+  
 
   Widget _buildDeliveryInfoCard() {
     return SizedBox(
@@ -434,7 +430,7 @@ class _OrderPageState extends State<OrderPage> {
                       if (value == null || value.isEmpty) {
                         return 'Campo obrigatório';
                       }
-                      if (!validarCPF(value)) {
+                      if (!validarCpf.validarCPF(value)) {
                         return 'CPF inválido';
                       }
                       return null;

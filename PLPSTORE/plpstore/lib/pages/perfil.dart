@@ -179,7 +179,7 @@ class _PerfilPageState extends State<PerfilPage> {
           ],
         ),
         const SizedBox(height: 10),
-        Text('Telefone: ${(cliente.telefone != '(') ? cliente.telefone : ''}'),
+        Text('Telefone: ${(cliente.telefone != '') ? cliente.telefone : ''}'),
         Text('Rua: ${(cliente.rua != 'null') ? cliente.rua : ''}'),
         Text('Cidade: ${(cliente.cidade != 'null') ? cliente.cidade : ''}'),
         Text('Número: ${(cliente.numero != 'null') ? cliente.numero : ''}'),
@@ -221,13 +221,14 @@ class _PerfilPageState extends State<PerfilPage> {
 
 void editInfo(BuildContext context, Cliente cliente) {
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
+  final cepController = MaskedTextController(mask: '00000-000');
   TextEditingController ruaController = TextEditingController(text: (cliente.rua != 'null') ? cliente.rua : '');
   TextEditingController cidadeController = TextEditingController(text: (cliente.cidade != 'null') ? cliente.cidade : '');
   TextEditingController numeroController = TextEditingController(text: (cliente.numero != 'null') ? cliente.numero : '');
   TextEditingController estadoController = TextEditingController(text: (cliente.estado != 'null') ? cliente.estado : '');
-  TextEditingController cepController = TextEditingController(text: (cliente.cep != 'null') ? cliente.cep : '');
   TextEditingController bairroController = TextEditingController(text: (cliente.bairro != 'null') ? cliente.bairro : '');
-  phoneController.text = (cliente.telefone != '(') ? cliente.telefone : '';
+  cepController.text = (cliente.cep != '') ? cliente.telefone : '';
+  phoneController.text = (cliente.telefone != '') ? cliente.telefone : '';
 
   showDialog(
     context: context,

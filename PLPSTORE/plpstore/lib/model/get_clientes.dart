@@ -74,6 +74,7 @@ class GetCliente with ChangeNotifier {
     } else {
       _message = responseData['message'];
     }
+    notifyListeners();
   }
 
   String getMessage(){

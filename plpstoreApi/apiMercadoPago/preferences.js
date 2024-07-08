@@ -11,33 +11,14 @@ const  createPreference = async(data) => {
     items: [
       {
         id: data.id || "1234",
-        title: "Compra Teste",
-        description: "Dummy description",
-        picture_url: "http://www.myapp.com/myimage.jpg",
-        category_id: "car_electronics",
+        title: "Cartas da PLP Store",
+        category_id: "jogo_de_cartas",
         quantity: 1,
+        picture_url: 'https://plpstore.com.br/img/logo.png',
         currency_id: "BRL",
-        unit_price: 0.01,
+        unit_price: parseFloat(data.price),
       },
     ],
-    payer: {
-      name: "Test",
-      surname: "User",
-      email: "your_test_email@example.com",
-      phone: {
-        area_code: "11",
-        number: "4444-4444",
-      },
-      identification: {
-        type: "CPF",
-        number: "19119119100",
-      },
-      address: {
-        zip_code: "06233200",
-        street_name: "Street",
-        street_number: 123,
-      },
-    },
     back_urls: {
       success: "http://192.168.1.8:3000/pagamento-aprovado",
       failure: "http://192.168.1.8:3000/aguardando-pagamento",
@@ -45,7 +26,7 @@ const  createPreference = async(data) => {
     },
     expires: false,
     auto_return: "all",
-    notification_url: "http://notificationurl.com",
+    notification_url: "http://notificationurl.com",//url para enviar email para cliente????
 
     statement_descriptor: "Plp Store",
   };

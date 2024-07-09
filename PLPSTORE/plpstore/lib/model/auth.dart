@@ -50,7 +50,6 @@ class Auth with ChangeNotifier {
         'senha': password,
       },
     );
-    print(response.body);
     Map<String, dynamic> responseData = jsonDecode(response.body);
     //deu errado
     if (responseData['code'] == 0) {

@@ -120,7 +120,6 @@ class AppDrawer extends StatelessWidget {
                   leading: const FaIcon(FontAwesomeIcons.solidEnvelope),
                   title: const Text('adm@plpstore.com.br'),
                   onTap: () {
-                    FuncaoExterna().email();
                   },
                 ),
                 ListTile(

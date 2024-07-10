@@ -12,6 +12,7 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
+          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -31,50 +32,75 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Logo
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Image.asset('assets/img/LOGO_1.png',
-                          fit: BoxFit.cover),
+                      child: Image.asset(
+                        'assets/img/LOGO_1.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
+                    // Authentication form
                     const AuthForm(),
-                    TextButton(onPressed: (){Navigator.of(context).popAndPushNamed(AppRoutes.home);}, child: const Text('Acessar a Loja', style: TextStyle(color: Colors.red),)),
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const FaIcon(FontAwesomeIcons.instagram, color: Colors.pink,),
-                        const SizedBox(width: 5,),
-                        TextButton( onPressed: (){
-                          FuncaoExterna().instagram();
-                        }, child: const Text('@plpstore', style: TextStyle(color: Colors.black),)),
-                      ],
+                    // Button to access the store
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).popAndPushNamed(AppRoutes.home);
+                      },
+                      child: const Text(
+                        'Acessar a Loja',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green,),
-                        const SizedBox(width: 5,),
-                        TextButton( onPressed: (){
-                          FuncaoExterna().whatsApp();
-                        }, child: const Text('(13) 9 9618-7797', style: TextStyle(color: Colors.black),)),
-                      ],
+                    // Social media and contact information
+                    _buildContactRow(
+                      icon: FontAwesomeIcons.instagram,
+                      iconColor: Colors.pink,
+                      text: '@plpstore_',
+                      onPressed: () => FuncaoExterna().instagram(),
                     ),
-                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const FaIcon(FontAwesomeIcons.envelope, color: Colors.black,),
-                        const SizedBox(width: 5,),
-                        TextButton( onPressed: (){
-                          FuncaoExterna().email();
-                        }, child: const Text('adm@plpstore.com.br', style: TextStyle(color: Colors.black),)),
-                      ],
-                    )
+                    _buildContactRow(
+                      icon: FontAwesomeIcons.whatsapp,
+                      iconColor: Colors.green,
+                      text: '(13) 9 9618-7797',
+                      onPressed: () => FuncaoExterna().whatsApp(),
+                    ),
+                    _buildContactRow(
+                      icon: FontAwesomeIcons.envelope,
+                      iconColor: Colors.black,
+                      text: 'adm@plpstore.com.br',
+                      onPressed: () {},
+                    ),
                   ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
+    );
+  }
+
+  // Helper function to build a row for contact information
+  Widget _buildContactRow({
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FaIcon(icon, color: iconColor),
+        const SizedBox(width: 5),
+        TextButton(
+          onPressed: onPressed,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,27 +1,30 @@
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 
 class FuncaoExterna {
-  final urlInsta = 'https://www.instagram.com/plpstore_/';
-  final urlWhats = 'https://api.whatsapp.com/send?phone=5513996187797&text=Olá'; // Exemplo para WhatsApp
-  final urlMail = 'mailto:example@example.com'; // Exemplo para email
+  final String urlInsta = 'https://www.instagram.com/plpstore_';
+  final String urlWhats =
+      'https://api.whatsapp.com/send?phone=5513996187797&text=Olá';
+  final String urlMail = 'mailto:adm@plpstore.com.br';
 
   void instagram() async {
-    await _launchURL(Uri.parse(urlInsta));
+    await _launchURL(urlInsta);
   }
 
   void whatsApp() async {
-    await _launchURL(Uri.parse(urlWhats));
+    await _launchURL(urlWhats);
   }
 
   void email() async {
-    await _launchURL(Uri.parse(urlMail));
+    await _launchURL(urlMail);
   }
 
-  Future<void> _launchURL(Uri url) async {
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Não foi possível acessar $url';
+  Future<void> _launchURL(String urlString) async {
+    try {
+      await launchUrl(
+        Uri.parse(urlString),
+      );
+    } catch (e) {
+      throw 'Não foi possível acessar $urlString';
     }
   }
 }

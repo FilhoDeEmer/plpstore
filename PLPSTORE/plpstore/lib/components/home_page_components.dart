@@ -32,7 +32,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
       );
     }
   }
-  
 
   String page = 'Home';
 
@@ -211,12 +210,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
               ),
             ),
             const Text(
-              'Mais Vendidos',
+              'Novidades',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: CarouselSlider(

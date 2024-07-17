@@ -23,7 +23,7 @@ class GetCliente with ChangeNotifier {
   Future<void> pegaClients(String cpf) async {
     const url = 'https://plpstore.com.br/apis/api/login/clientes.php';
     final response = await http.post(Uri.parse(url), body: {'cpf': cpf});
-    final responseData = jsonDecode(response.body);   
+    final responseData = jsonDecode(response.body);
 
     if (responseData['code'] == 1) {
       Map<String, dynamic> total = responseData['result'];
@@ -52,6 +52,19 @@ class GetCliente with ChangeNotifier {
     }
   }
 
+  Future<void> vendasClients(String idUser) async {
+    const url = 'https://plpstore.com.br/apis/api/vendas/vendasClientes.php';
+    final response =
+        await http.post(Uri.parse(url), body: {'idUsuario': idUser});
+    final responseData = jsonDecode(response.body);
+    print(responseData);
+    if (responseData['code'] == 1) {
+      notifyListeners();
+    } else {
+      _message = responseData['result'];
+    }
+  }
+
   Future<void> atualizarCliente(Cliente cliente) async {
     const url = 'https://plpstore.com.br/apis/api/usuarios/atualizar.php';
     final response = await http.post(Uri.parse(url), body: {
@@ -67,7 +80,7 @@ class GetCliente with ChangeNotifier {
       'estado': cliente.estado,
       'cep': cliente.cep,
     });
-    final responseData = jsonDecode(response.body);  
+    final responseData = jsonDecode(response.body);
     if (responseData['code'] == 1) {
       code = responseData['code'];
       _message = responseData['message'];
@@ -77,9 +90,10 @@ class GetCliente with ChangeNotifier {
     notifyListeners();
   }
 
-  String getMessage(){
+  String getMessage() {
     return _message;
   }
+
   void sair() {
     cliente?.deslogar();
     notifyListeners();

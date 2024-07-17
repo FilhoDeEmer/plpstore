@@ -28,6 +28,7 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     _loadUserData();
   }
+
   ValidarCpf validarCpf = ValidarCpf();
   final List<String> envio = <String>['PAC', 'Sedex', 'Retirar no Local'];
   String? _tipoEnvio;
@@ -88,11 +89,10 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Future<void> _launchURL(BuildContext context, String id, String price) async {
+  Future<void> _launchURL(BuildContext context, String url) async {
     try {
       await launchUrl(
-        Uri.parse(
-            'http://192.168.1.8:3000/create-preference?id=$id&price=$price'),
+        Uri.parse(url),
         prefersDeepLink: true,
         customTabsOptions: CustomTabsOptions(
           colorSchemes: CustomTabsColorSchemes.defaults(
@@ -125,7 +125,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   String? _envioError;
-  void _finalizarPedido() {
+  void _finalizarPedido(BuildContext context) async {
     setState(() {
       _envioError = _tipoEnvio == null ? 'Selecione um tipo de envio' : null;
     });
@@ -160,23 +160,33 @@ class _OrderPageState extends State<OrderPage> {
     };
 
     final String pedidoJson = jsonEncode(pedido);
+    final String response;
+    final Map<String, String> urlPayment;
+    GerarPedido gerarPedido = GerarPedido();
 
     if (_isFirstTime) {
       print(pedidoJson);
       // é a primeira vez
-      GerarPedido gerarPedido = GerarPedido();
-      gerarPedido.gerarPedido(pedidoJson);
+
+      response = await gerarPedido.gerarPedido(pedidoJson);
     } else {
       // não é a primeira compra
-      GerarPedido gerarPedido = GerarPedido();
-      gerarPedido.gerarPedido(pedidoJson);
+      response = await gerarPedido.gerarPedido(pedidoJson);
     }
-    _launchURL(context, userProvider.getUserId() , valorTotal.toString());
-    cart.clean();
-    Navigator.of(context).pop;
-    Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
-    // chamada da url passando o pedidoJson e tambem tem que verificar se _isFisrtTime é true para salvar os dados do cliente
-    // tambem pode ser adicionado uma mensagem de verificação para perguntar se deseja salvar o novo endereço
+    final int? saleId = int.tryParse(response);
+    if (saleId != null) {
+      cart.clean();
+      urlPayment = await gerarPedido.criarPreferencia(0.01);
+      if (urlPayment['id_payment'] != 'fail') {
+        await _launchURL(context, urlPayment['init_point'].toString());
+        gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
+      }
+    }
+
+    //_launchURL(context, userProvider.getUserId() , valorTotal.toString());
+
+    //Navigator.of(context).pop;
+    //Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
   }
 
   @override
@@ -198,7 +208,7 @@ class _OrderPageState extends State<OrderPage> {
             child: Column(
               children: [
                 _buildProductsCard(constraints, items),
-                _buildDeliveryInfoCard(),
+                _buildDeliveryInfoCard(context),
               ],
             ),
           );
@@ -254,9 +264,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  
-
-  Widget _buildDeliveryInfoCard() {
+  Widget _buildDeliveryInfoCard(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -372,7 +380,7 @@ class _OrderPageState extends State<OrderPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        _finalizarPedido();
+                        _finalizarPedido(context);
                       },
                       style: const ButtonStyle(
                         backgroundColor:

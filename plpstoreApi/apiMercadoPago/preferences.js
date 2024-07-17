@@ -16,7 +16,7 @@ const  createPreference = async(data) => {
         quantity: 1,
         picture_url: 'https://plpstore.com.br/img/logo.png',
         currency_id: "BRL",
-        unit_price: parseFloat(data.price),
+        unit_price: 1.01,
       },
     ],
     back_urls: {
@@ -45,3 +45,4 @@ module.exports = {
 };
 
 
+// http://192.168.1.8:3000/pagamento-aprovado?collection_id=82687067905&collection_status=approved&payment_id=82687067905&status=approved&external_reference=null&payment_type=credit_card&merchant_order_id=20829679879&preference_id=1728049498-b3fe9624-1f68-48ac-a623-166bcdf36b4b&site_id=MLB&processing_mode=aggregator&merchant_account_id=null

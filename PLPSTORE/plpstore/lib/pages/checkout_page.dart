@@ -12,6 +12,10 @@ class CheckoutPage extends StatefulWidget {
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
+void creatPreference() {
+  
+}
+
 class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
@@ -71,7 +75,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     try {
       await launchUrl(
         Uri.parse(
-            'http://192.168.1.8:3000/create-preference?id=$id&price=$price'),
+            'http://192.168.1.3:3000/create-preference?id=$id&price=$price'),
         prefersDeepLink: true,
         customTabsOptions: CustomTabsOptions(
           colorSchemes: CustomTabsColorSchemes.defaults(

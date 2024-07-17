@@ -165,9 +165,7 @@ class _OrderPageState extends State<OrderPage> {
     GerarPedido gerarPedido = GerarPedido();
 
     if (_isFirstTime) {
-      print(pedidoJson);
       // é a primeira vez
-
       response = await gerarPedido.gerarPedido(pedidoJson);
     } else {
       // não é a primeira compra
@@ -175,12 +173,12 @@ class _OrderPageState extends State<OrderPage> {
     }
     final int? saleId = int.tryParse(response);
     if (saleId != null) {
-      cart.clean();
-      urlPayment = await gerarPedido.criarPreferencia(0.01);
+      urlPayment = await gerarPedido.criarPreferencia(0.01);      
       if (urlPayment['id_payment'] != 'fail') {
         await _launchURL(context, urlPayment['init_point'].toString());
-        gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
+        //gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
       }
+      cart.clean();
     }
 
     //_launchURL(context, userProvider.getUserId() , valorTotal.toString());

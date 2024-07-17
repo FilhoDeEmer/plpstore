@@ -21,50 +21,38 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
-  var accessToken =
-      "APP_USR-6558376728906994-041714-06373b57e10b878abe198ed0914acf09-1728049498";
-
   Future<Map<String, String>> criarPreferencia(double price) async {
-    const String url = 'https://api.mercadopago.com/checkout/preferences';
-
-    final Map<String, dynamic> body = {
-      "items": [
-        {
-          "id": "1234",
-          "title": "Cartas da PLP Store",
-          "category_id": "jogo_de_cartas",
-          "quantity": 1,
-          "picture_url": 'https://plpstore.com.br/img/logo.png',
-          "currency_id": "BRL",
-          "unit_price": price,
+    const String url = 'http://192.168.1.3/teste_php/preference.php';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ],
-      "back_urls": {
-        "success": ""
-    },
-      "statement_descriptor": "Plp Store",
-      "auto_return": "all",
-    };
-
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      String id_payment = responseData['id'];
-      String initPoint = responseData['init_point'];
-      print(id_payment);
-      return {
-        'id_payment': id_payment,
-        'init_point': initPoint,
-      };
-    } else {
+        body: jsonEncode({
+          'id': '123456',
+          'unit_price': '1.00',
+        }),
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        String id_payment = responseData['response']['id'];
+        String initPoint = responseData['response']['init_point'];
+        print(initPoint);
+        String testInitPoint = responseData['response']['sandbox_init_point'];
+        return {
+          'id_payment': id_payment,
+          'init_point': initPoint,
+          'test_init_point': testInitPoint,
+        };
+      } else {
+        return {
+          'id_payment': 'fail',
+          'init_point': 'Falha ao criar preferência',
+        };
+      }
+    } catch (e) {
+      print('Erro ao conectar: $e');
       return {
         'id_payment': 'fail',
         'init_point': 'Falha ao criar preferência',
@@ -77,18 +65,13 @@ class GerarPedido with ChangeNotifier {
 
     final response = await http.post(
       Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
     );
     if (response.statusCode == 201) {
       final responseData = jsonDecode(response.body);
       print(responseData);
-
-
     } else {
       print('falha');
     }
   }
+
 }

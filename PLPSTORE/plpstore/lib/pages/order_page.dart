@@ -9,7 +9,6 @@ import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/cart_item.dart';
 import 'package:plpstore/model/gerar_pedido.dart';
 import 'package:plpstore/model/get_clientes.dart';
-import 'package:plpstore/pages/checkout_page.dart';
 import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
@@ -54,7 +53,6 @@ class _OrderPageState extends State<OrderPage> {
       valorTotal = valorPedido + valorFrete;
     });
   }
-
   late bool _isFirstTime;
 
   Future<void> _loadUserData() async {
@@ -88,9 +86,11 @@ class _OrderPageState extends State<OrderPage> {
       });
     }
   }
+
   Future<void> _launchInWebViewWithoutDomStorage(Uri url) async {
-  Navigator.of(context).popAndPushNamed(AppRoutes.checkout);
-}
+    Navigator.of(context).popAndPushNamed(AppRoutes.checkout);
+  }
+
   String? _envioError;
   void _finalizarPedido(BuildContext context) async {
     setState(() {
@@ -143,15 +143,14 @@ class _OrderPageState extends State<OrderPage> {
       urlPayment = await gerarPedido.criarPreferencia(
           valorTotal, userProvider.getUserId(), saleId.toString());
       if (urlPayment['id_payment'] != 'fail') {
-        final Uri toLaunch =
-        Uri.parse(urlPayment['init_point'] as String);
+        final Uri toLaunch = Uri.parse(urlPayment['init_point'] as String);
         await _launchInWebViewWithoutDomStorage(toLaunch);
         //gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
-        print(urlPayment['test_init_point']);// para teste de pagamento
+        print(urlPayment['test_init_point']); // para teste de pagamento
       }
       cart.clean();
     }
-    
+
     /* cartão de teste mercado pago:
     n 5031 4332 1540 6351
     cvv 123
@@ -160,7 +159,6 @@ class _OrderPageState extends State<OrderPage> {
           othe = recusado
           cont = pendente
      */
-
   }
 
   @override

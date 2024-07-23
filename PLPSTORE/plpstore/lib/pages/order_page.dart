@@ -89,11 +89,7 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
   Future<void> _launchInWebViewWithoutDomStorage(Uri url) async {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => MyAppTest(url: url.toString()), 
-    ),
-  );
+  Navigator.of(context).popAndPushNamed(AppRoutes.checkout);
 }
   String? _envioError;
   void _finalizarPedido(BuildContext context) async {

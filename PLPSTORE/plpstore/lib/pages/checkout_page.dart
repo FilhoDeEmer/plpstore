@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/utils/app_routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class MyAppTest extends StatelessWidget {
@@ -13,7 +15,24 @@ class MyAppTest extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pagamento', style: TextStyle(color: Colors.white)),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+              onPressed: () {
+                Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
+              },
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            );
+          },
+        ),
+        title: const Text(
+          'Pagamento',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 30,
+          ),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.blue,
         centerTitle: true,

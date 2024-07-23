@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.perfil: (ctx) => const PerfilPage(),
           AppRoutes.pedido: (ctx) => const OrderPage(),
           AppRoutes.combos: (ctx) => const ComboPage(),
-          AppRoutes.checkout: (ctx) => const CheckoutPage(),
+          AppRoutes.checkout: (ctx) => const MyAppTest(),
           AppRoutes.colection: (ctx, {String? colectionName}) => ProductGridPage(colectionName: colectionName),
         },
         

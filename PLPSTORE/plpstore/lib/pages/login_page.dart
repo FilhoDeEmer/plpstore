@@ -35,14 +35,12 @@ class LoginPage extends StatelessWidget {
                     // Logo
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        'assets/img/LOGO_1.png',
-                        fit: BoxFit.cover,
-                      ),
+                      child: Image.network("https://plpstore.com.br/img/logo.png",width: 280,
+                      height: 280,),
+                      
+                      
                     ),
-                    // Authentication form
                     const AuthForm(),
-                    // Button to access the store
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).popAndPushNamed(AppRoutes.home);
@@ -52,7 +50,6 @@ class LoginPage extends StatelessWidget {
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
-                    // Social media and contact information
                     _buildContactRow(
                       icon: FontAwesomeIcons.instagram,
                       iconColor: Colors.pink,
@@ -81,7 +78,6 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  // Helper function to build a row for contact information
   Widget _buildContactRow({
     required IconData icon,
     required Color iconColor,

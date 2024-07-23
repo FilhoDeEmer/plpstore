@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,8 +22,8 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
-  Future<Map<String, String>> criarPreferencia(double price) async {
-    const String url = 'http://192.168.1.3/teste_php/preference.php';
+  Future<Map<String, String>> criarPreferencia(double price, String id_user, String id_venda) async {
+    const String url = 'https://plpstore.com.br/apiEmerson/preference.php';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -30,15 +31,16 @@ class GerarPedido with ChangeNotifier {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'id': '123456',
-          'unit_price': '1.00',
+          'id': Random(),
+          'unit_price': price.toString(),
+          'id_user' : id_user,
+          'id_venda' : id_venda
         }),
       );
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         String id_payment = responseData['response']['id'];
         String initPoint = responseData['response']['init_point'];
-        print(initPoint);
         String testInitPoint = responseData['response']['sandbox_init_point'];
         return {
           'id_payment': id_payment,

@@ -124,7 +124,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: int.parse(widget.data.estoque) == 0
+                      backgroundColor: int.parse(widget.data.estoque) <= 0
                           ? Colors.grey
                           : Colors.green,
                       padding: const EdgeInsets.symmetric(

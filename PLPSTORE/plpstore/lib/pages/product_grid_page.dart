@@ -63,6 +63,15 @@ class _ProductGridPageState extends State<ProductGridPage> {
               child: child!,
             ),
           ),
+          if (user.isEmpty)
+           IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.login);
+              },
+              icon: const FaIcon(FontAwesomeIcons.solidCircleUser),
+            ),
+          
+          if (user.isNotEmpty)
           PopupMenuButton(
             icon: const FaIcon(FontAwesomeIcons.solidCircleUser),
             itemBuilder: (_) => [

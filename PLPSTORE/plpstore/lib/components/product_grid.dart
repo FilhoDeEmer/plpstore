@@ -24,6 +24,7 @@ class _ProductGridState extends State<ProductGrid> {
   bool pokemon = false;
   bool treinador = false;
   bool energia = false;
+  bool emEstoque = false;
   late Future<List<Product>> _allProductsFuture;
   final TextEditingController _searchController = TextEditingController();
   int itemsPerPage = 24;
@@ -126,6 +127,12 @@ class _ProductGridState extends State<ProductGrid> {
                 .where((product) =>
                     product.subCategoriaNome.toString().contains('Treinador'))
                 .toList();
+          } else if (emEstoque) {
+            productList = snapshot.data!;
+            productList = productList
+                .where((product) =>
+                    int.parse(product.estoque) > 0 )
+                .toList();
           } else {
             productList = snapshot.data!;
             productList = productList
@@ -224,20 +231,41 @@ class _ProductGridState extends State<ProductGrid> {
                   ],
                 ),
               ),
-              DropdownButton(
-                  value: itemsPerPage,
-                  items: list.map<DropdownMenuItem<int>>((int value) {
-                    return DropdownMenuItem(
-                      value: value,
-                      child: Text(value.toString()),
-                    );
-                  }).toList(),
-                  onChanged: (int? value) {
-                    setState(() {
-                      currentPage = 1;
-                      itemsPerPage = value!;
-                    });
-                  }),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Checkbox(
+                              checkColor: Colors.white,
+                              value: emEstoque,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  emEstoque = value!;
+                                  currentPage = 1;
+                                });
+                              },
+                            ),
+                            const Text('Em estoque'),
+                            const Text('Produtos por página'),
+                            
+                    DropdownButton(
+                        value: itemsPerPage,
+                        items: list.map<DropdownMenuItem<int>>((int value) {
+                          return DropdownMenuItem(
+                            value: value,
+                            child: Text(value.toString()),
+                          );
+                        }).toList(),
+                        onChanged: (int? value) {
+                          setState(() {
+                            currentPage = 1;
+                            itemsPerPage = value!;
+                          });
+                        }),
+                  ],
+                ),
+              ),
               Expanded(
                 child: GridView.builder(
                   controller: _scrollController,

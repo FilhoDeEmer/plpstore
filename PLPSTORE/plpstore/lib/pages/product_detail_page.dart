@@ -83,6 +83,10 @@ class _ProductDetailState extends State<ProductDetail> {
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
+              Text(
+                widget.data.descricao,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image(
@@ -92,12 +96,8 @@ class _ProductDetailState extends State<ProductDetail> {
               Column(
                 children: [
                   Text(
-                    widget.data.descricao,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    'Preço: R\$${widget.data.valor}',
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                    'R\$${widget.data.valor}',
+                    style: const TextStyle(color: Colors.black, fontSize: 26),
                   ),
                   Text('Estq.: ${widget.data.estoque}'),
                   ElevatedButton(
@@ -131,7 +131,7 @@ class _ProductDetailState extends State<ProductDetail> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: int.parse(widget.data.estoque) == 0
+                        backgroundColor: int.parse(widget.data.estoque) <= 0
                             ? Colors.grey
                             : Colors.green,
                         padding: const EdgeInsets.symmetric(

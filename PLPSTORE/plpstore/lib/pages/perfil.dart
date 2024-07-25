@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:plpstore/components/take_picture.dart';
 import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/cliente.dart';
 import 'package:plpstore/model/get_clientes.dart';
@@ -16,27 +13,11 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-  File? _profileImage;
-  TakePickture take = TakePickture();
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-  }
-
-  _takePicture() async {
-    File? picture = await take.takePicture();
-    setState(() {
-      _profileImage = picture;
-    });
-  }
-
-  _takeGallery() async {
-    File? picture = await take.takePicture(fromGallery: true);
-    setState(() {
-      _profileImage = picture;
-    });
   }
 
   Future<void> _loadUserData() async {
@@ -64,17 +45,10 @@ class _PerfilPageState extends State<PerfilPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              GestureDetector(
-                onTap: () => _showEditPicture(context),
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: _profileImage == null
-                      ? const AssetImage('assets/img/profile.png')
-                      : Image.file(
-                          _profileImage!,
-                          fit: BoxFit.cover,
-                        ).image,
-                ),
+              CircleAvatar(
+                radius: 60,
+                backgroundImage:const AssetImage('assets/img/profile.png')
+,
               ),
               const SizedBox(height: 20),
               GridView.count(
@@ -190,33 +164,6 @@ class _PerfilPageState extends State<PerfilPage> {
     );
   }
 
-  void _showEditPicture(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Editar foto de perfil!'),
-          content: const Text('Escolha uma opção'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _takeGallery();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Selecionar da Galeria'),
-            ),
-            TextButton(
-              onPressed: () {
-                _takePicture();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Tirar Foto'),
-            )
-          ],
-        );
-      },
-    );
-  }
 }
 
 void editInfo(BuildContext context, Cliente cliente) {

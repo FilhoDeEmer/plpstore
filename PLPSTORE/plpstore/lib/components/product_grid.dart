@@ -271,8 +271,8 @@ class _ProductGridState extends State<ProductGrid> {
                   controller: _scrollController,
                   padding: const EdgeInsets.all(10),
                   itemCount: paginatedProducts.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
                     childAspectRatio: 0.72,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5,

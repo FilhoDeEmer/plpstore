@@ -73,7 +73,7 @@ class CartItemWidget extends StatelessWidget {
             
             title: Text('${cartItem.name} ${cartItem.productCod}'),
             subtitle: Row(
-              children: <Widget>[
+              children:[
                 Text('Uni.: $precoUni'),
                 IconButton(
                     onPressed: () => _decrementQuantity(context),

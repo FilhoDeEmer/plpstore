@@ -66,6 +66,42 @@ class Cart with ChangeNotifier {
     }
     notifyListeners();
   }
+  void addItemMax(Product product, int qnt) {
+    if (_items.containsKey(product.id)) {
+      _items.update(product.id, (existingItem) {
+        int newQnt = existingItem.quantity + qnt;
+        if (newQnt <= existingItem.qntMax) {
+          return CartItem(
+            productCod: existingItem.productCod,
+            name: existingItem.name,
+            quantity: existingItem.quantity + qnt,
+            price: existingItem.price,
+            qntMax: existingItem.qntMax,
+          );
+        } else {
+          return CartItem(
+            productCod: existingItem.productCod,
+            name: existingItem.name,
+            quantity: existingItem.qntMax,
+            price: existingItem.price,
+            qntMax: existingItem.qntMax,
+          );
+        }
+      });
+    } else {
+      _items.putIfAbsent(
+        product.id,
+        () => CartItem(
+          productCod: product.id,
+          name: product.nome,
+          quantity: qnt,
+          price: double.parse(product.valor),
+          qntMax: int.parse(product.estoque),
+        ),
+      );
+    }
+    notifyListeners();
+  }
 
   void removeItem(String productId) {
     _items.remove(productId);

@@ -5,6 +5,7 @@ import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/cliente.dart';
 import 'package:plpstore/model/get_clientes.dart';
 import 'package:provider/provider.dart';
+
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 
@@ -13,7 +14,6 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-
   @override
   void initState() {
     super.initState();
@@ -45,11 +45,11 @@ class _PerfilPageState extends State<PerfilPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage:const AssetImage('assets/img/profile.png')
-,
-              ),
+//               CircleAvatar(
+//                 radius: 60,
+//                 backgroundImage:const AssetImage('assets/img/profile.png')
+// ,
+//               ),
               const SizedBox(height: 20),
               GridView.count(
                 crossAxisCount: 2,
@@ -57,15 +57,21 @@ class _PerfilPageState extends State<PerfilPage> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildGridItem('Total de Pedidos', '0', Colors.blue.shade900),
-                  _buildGridItem('Pedidos Finalizados', '0', Colors.green.shade900),
+                  _buildGridItem(
+                      'Pedidos Finalizados', '0', Colors.green.shade900),
                   _buildGridItem('Pedidos Pendentes', '0', Colors.red.shade900),
-                  _buildGridItem('Aguardando Entrega', '0', Colors.amber.shade900),
+                  _buildGridItem(
+                      'Aguardando Entrega', '0', Colors.amber.shade900),
                 ],
               ),
               const SizedBox(height: 20),
-              cliente != null ? _buildClientInfo(cliente) : const Center(child: CircularProgressIndicator()),
+              cliente != null
+                  ? _buildClientInfo(cliente)
+                  : const Center(child: CircularProgressIndicator()),
               const SizedBox(height: 20),
-              cliente != null ? _buildAddressInfo(context, cliente) : const Center(child: CircularProgressIndicator()),
+              cliente != null
+                  ? _buildAddressInfo(context, cliente)
+                  : const Center(child: CircularProgressIndicator()),
             ],
           ),
         ),
@@ -101,7 +107,8 @@ class _PerfilPageState extends State<PerfilPage> {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
+                style: TextStyle(
+                    fontSize: 24, fontWeight: FontWeight.bold, color: color),
               )
             ],
           ),
@@ -111,69 +118,88 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildClientInfo(Cliente cliente) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Minhas Informações',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Card(
+      surfaceTintColor: Colors.white,
+      elevation: 12,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Minhas Informações',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 10),
+                  FaIcon(FontAwesomeIcons.user),
+                ],
               ),
-              SizedBox(width: 10),
-              FaIcon(FontAwesomeIcons.user),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            Text('Usuário: ${cliente.nome}'),
+            Text('E-mail: ${cliente.email}'),
+            Text('CPF: ${cliente.cpf}'),
+          ],
         ),
-        const SizedBox(height: 10),
-        Text('Usuário: ${cliente.nome}'),
-        Text('E-mail: ${cliente.email}'),
-        Text('CPF: ${cliente.cpf}'),
-      ],
+      ),
     );
   }
 
   Widget _buildAddressInfo(BuildContext context, Cliente cliente) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return Card(
+      surfaceTintColor: Colors.white,
+      elevation: 12,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Endereço',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Endereço',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  onPressed: () => editInfo(context, cliente),
+                  icon: const FaIcon(FontAwesomeIcons.pen),
+                ),
+              ],
             ),
-            IconButton(
-              onPressed: () => editInfo(context, cliente),
-              icon: const FaIcon(FontAwesomeIcons.pen),
-            ),
+            const SizedBox(height: 10),
+            Text(
+                'Telefone: ${(cliente.telefone != '') ? cliente.telefone : ''}'),
+            Text('Rua: ${(cliente.rua != 'null') ? cliente.rua : ''}'),
+            Text('Cidade: ${(cliente.cidade != 'null') ? cliente.cidade : ''}'),
+            Text('Número: ${(cliente.numero != 'null') ? cliente.numero : ''}'),
+            Text('Estado: ${(cliente.estado != 'null') ? cliente.estado : ''}'),
+            Text('Bairro: ${(cliente.bairro != 'null') ? cliente.bairro : ''}'),
+            Text('CEP: ${(cliente.cep != 'null') ? cliente.cep : ''}'),
           ],
         ),
-        const SizedBox(height: 10),
-        Text('Telefone: ${(cliente.telefone != '') ? cliente.telefone : ''}'),
-        Text('Rua: ${(cliente.rua != 'null') ? cliente.rua : ''}'),
-        Text('Cidade: ${(cliente.cidade != 'null') ? cliente.cidade : ''}'),
-        Text('Número: ${(cliente.numero != 'null') ? cliente.numero : ''}'),
-        Text('Estado: ${(cliente.estado != 'null') ? cliente.estado : ''}'),
-        Text('Bairro: ${(cliente.bairro != 'null') ? cliente.bairro : ''}'),
-        Text('CEP: ${(cliente.cep != 'null') ? cliente.cep : ''}'),
-      ],
+      ),
     );
   }
-
 }
 
 void editInfo(BuildContext context, Cliente cliente) {
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
   final cepController = MaskedTextController(mask: '00000-000');
-  TextEditingController ruaController = TextEditingController(text: (cliente.rua != 'null') ? cliente.rua : '');
-  TextEditingController cidadeController = TextEditingController(text: (cliente.cidade != 'null') ? cliente.cidade : '');
-  TextEditingController numeroController = TextEditingController(text: (cliente.numero != 'null') ? cliente.numero : '');
-  TextEditingController estadoController = TextEditingController(text: (cliente.estado != 'null') ? cliente.estado : '');
-  TextEditingController bairroController = TextEditingController(text: (cliente.bairro != 'null') ? cliente.bairro : '');
+  TextEditingController ruaController =
+      TextEditingController(text: (cliente.rua != 'null') ? cliente.rua : '');
+  TextEditingController cidadeController = TextEditingController(
+      text: (cliente.cidade != 'null') ? cliente.cidade : '');
+  TextEditingController numeroController = TextEditingController(
+      text: (cliente.numero != 'null') ? cliente.numero : '');
+  TextEditingController estadoController = TextEditingController(
+      text: (cliente.estado != 'null') ? cliente.estado : '');
+  TextEditingController bairroController = TextEditingController(
+      text: (cliente.bairro != 'null') ? cliente.bairro : '');
   cepController.text = (cliente.cep != '') ? cliente.telefone : '';
   phoneController.text = (cliente.telefone != '') ? cliente.telefone : '';
 
@@ -229,7 +255,8 @@ void editInfo(BuildContext context, Cliente cliente) {
                 cep: cepController.text,
                 bairro: bairroController.text,
               );
-              Provider.of<GetCliente>(context, listen: false).atualizarCliente(cliente);
+              Provider.of<GetCliente>(context, listen: false)
+                  .atualizarCliente(cliente);
               Navigator.of(context).pop();
             },
             child: const Text('Salvar'),

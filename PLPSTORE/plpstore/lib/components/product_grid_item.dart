@@ -14,6 +14,8 @@ class ProductGridItem extends StatefulWidget {
 }
 
 class _ProductGridItemState extends State<ProductGridItem> {
+  int addCar = 1;
+
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context, listen: false);
@@ -33,10 +35,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(10),
           image: DecorationImage(
-              image: const AssetImage('assets/img/tcg_card_back.jpg'),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.15), BlendMode.dstATop)),
+            image: const AssetImage('assets/img/tcg_card_back.jpg'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.15), BlendMode.dstATop),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,8 +58,8 @@ class _ProductGridItemState extends State<ProductGridItem> {
             Center(
               child: Container(
                 padding: const EdgeInsets.all(10),
-                width: 120,
-                height: 160,
+                width: 100,
+                height: 140,
                 child: FadeInImage(
                   placeholder: const AssetImage('assets/img/tcg_card_back.jpg'),
                   image: NetworkImage(
@@ -81,7 +84,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                 ),
                 const Spacer(),
                 Text(
-                  'Qnt.: ${widget.data.estoque.toString()}',
+                  'Estq.: ${widget.data.estoque.toString()}',
                   style: const TextStyle(
                       color: Color.fromARGB(255, 0, 0, 0),
                       fontWeight: FontWeight.bold),
@@ -91,54 +94,105 @@ class _ProductGridItemState extends State<ProductGridItem> {
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (int.parse(widget.data.estoque) <= 0) {
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Produto fora de estoque ou com quantidade máxima atingida!'),
-                          duration: Duration(seconds: 2),
-                          action: null,
+                Card(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () => _decrementQuantity(context),
+                        icon: const FaIcon(
+                          FontAwesomeIcons.minus,
+                          color: Colors.red,
                         ),
-                      );
-                    } else {
-                      cart.addItem(widget.data);
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content:
-                              const Text('Produto adicionado com sucesso!'),
-                          duration: const Duration(seconds: 2),
-                          action: SnackBarAction(
-                            label: 'DESFAZER',
-                            onPressed: () {
-                              cart.removeSingleItem(widget.data.id);
-                            },
-                          ),
+                      ),
+                      Text(addCar.toString()),
+                      IconButton(
+                        onPressed: () => _incrementQuantity(context),
+                        icon: const FaIcon(
+                          FontAwesomeIcons.plus,
+                          color: Colors.blue,
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: int.parse(widget.data.estoque) <= 0
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    child: RawMaterialButton(
+                      onPressed: () {
+                        if (widget.data.estoque == addCar) {
+                          messageFail(context);
+                        } else if (int.parse(widget.data.estoque) <= 0) {
+                          messageFail(context);
+                        } else {
+                          cart.addItemMax(widget.data, addCar);
+                          messageSuccess(context, cart);
+                        }
+                      },
+                      elevation: 2,
+                      fillColor: int.parse(widget.data.estoque) <= 0
                           ? Colors.grey
                           : Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 7)),
-                  child: const FaIcon(
-                    FontAwesomeIcons.cartShopping,
-                    color: Colors.white,
+                      child: const FaIcon(
+                        FontAwesomeIcons.cartShopping,
+                        size: 14,
+                        color: Colors.white,
+                      ),
+                      padding: const EdgeInsets.all(15),
+                      shape: const CircleBorder(),
+                    ),
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void messageSuccess(BuildContext context, Cart cart) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Produto adicionado com sucesso!'),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: 'DESFAZER',
+          onPressed: () {
+            cart.removeSingleItem(widget.data.id);
+          },
+        ),
+      ),
+    );
+  }
+
+  void messageFail(BuildContext context) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content:
+            Text('Produto fora de estoque ou com quantidade máxima atingida!'),
+        duration: Duration(seconds: 2),
+        action: null,
+      ),
+    );
+  }
+
+  void _incrementQuantity(BuildContext context) {
+    setState(() {
+      if (addCar < int.parse(widget.data.estoque)) {
+        addCar++;
+      }
+    });
+  }
+
+  void _decrementQuantity(BuildContext context) {
+    setState(() {
+      if (addCar > 1) {
+        addCar--;
+      }
+    });
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/produtos_list.dart';
 import 'package:provider/provider.dart';
 
@@ -59,7 +60,7 @@ class _ColecaoEditPageState extends State<ColecaoEditPage> {
         future: _collectionsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: PokeballLoading());
           } else if (snapshot.hasError) {
             return const Center(child: Text('Erro ao carregar coleções'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/product.dart';
 import 'package:plpstore/model/produtos_list.dart';
 import 'package:plpstore/pages/edit_detail_product_page.dart';
@@ -140,7 +141,7 @@ class _EditProductPageState extends State<EditProductPage> {
         builder: (context, snapshot) {
           totalProdutos = snapshot.data == null ? 0 : snapshot.data!.length;
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: PokeballLoading());
           } else if (!snapshot.hasData ||
               snapshot.data!.isEmpty ||
               snapshot.hasError) {

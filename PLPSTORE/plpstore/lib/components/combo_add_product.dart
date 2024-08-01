@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/combo_list.dart';
 import 'package:plpstore/model/product.dart';
 import 'package:plpstore/model/produtos_list.dart';
@@ -91,7 +92,7 @@ class _ComboAddProductState extends State<ComboAddProduct> {
       future: _allProductsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: PokeballLoading());
           // } else if (snapshot.hasError ) {
           //   return Center(child: Text(snapshot.error.toString())); tem que retornar quandso for fazer teste, mas acho que não vai mais precisar
         } else if (!snapshot.hasData ||

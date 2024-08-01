@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         title: 'PLP Store',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromRGBO(33, 150, 243, 1)),
+              seedColor: Color.fromARGB(255, 165, 143, 43)),
           useMaterial3: true,
         ),
         debugShowCheckedModeBanner: false,
@@ -65,3 +65,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// AppRoutes.colection: (ctx, {String? colectionName}) => ProductGridPage(colectionName: colectionName),

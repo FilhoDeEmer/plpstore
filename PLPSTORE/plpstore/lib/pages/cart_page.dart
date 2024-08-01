@@ -5,63 +5,76 @@ import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:plpstore/model/auth.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
   @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  @override
   Widget build(BuildContext context) {
-    final Cart cart = Provider.of(context);
-    final item = cart.items.values.toList();
-    
+    final Cart cart = Provider.of<Cart>(context);
+    final items = cart.items.values.toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carrinho', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue,
-        centerTitle: true,
-      ),
+      resizeToAvoidBottomInset: false,
       body: Column(
         children: [
           Expanded(
-            child: item.isEmpty
-                ? const Center(child: Text('Carrinho Vazio!'))
-                : ListView.builder(
-                    itemCount: item.length,
-                    itemBuilder: (ctx, i) => CartItemWidget(item[i], cart),
-                  ),
-          ),
-          Card(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 25,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Total',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                  Chip(
-                    backgroundColor: Colors.red,
-                    label: Text(
-                      'R\$${cart.totalAmount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
+            child: items.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Carrinho Vazio!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromRGBO(177, 136, 2, 1),
                       ),
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (ctx, i) => CartItemWidget(items[i], cart),
                   ),
-                  CartButton(cart: cart)
-                ],
+          ),
+          _buildTotalCard(cart),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalCard(Cart cart) {
+    return Card(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 15,
+        vertical: 25,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Total:',
+              style: TextStyle(
+                fontSize: 20,
               ),
             ),
-          ),
-        ],
+            Chip(
+              backgroundColor: Color.fromRGBO(179, 146, 41, 1),
+              label: Text(
+                'R\$${cart.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            if (cart.itemsCount > 0) 
+              CartButton(cart: cart),
+          ],
+        ),
       ),
     );
   }
@@ -83,17 +96,20 @@ class _CartButtonState extends State<CartButton> {
   @override
   Widget build(BuildContext context) {
     final token = Provider.of<Auth>(context);
-    String user = token.getToken();
+    final userToken = token.getToken();
+
     return TextButton(
-        onPressed: () {
-          if(user == ''){
-            Navigator.of(context).pushNamed(AppRoutes.login);
-          }
-          else {
-            Navigator.of(context).pushNamed(AppRoutes.pedido);
-          }
-          
-        },
-        child: const Text('COMPRAR'));
+      onPressed: () {
+        if (userToken.isEmpty) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+        } else {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.pedido);
+        }
+      },
+      child: const Text(
+        'COMPRAR',
+        style: TextStyle(color: Color.fromRGBO(177, 136, 2, 1)),
+      ),
+    );
   }
 }

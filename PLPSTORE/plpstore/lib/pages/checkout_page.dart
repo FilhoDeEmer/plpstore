@@ -11,8 +11,9 @@ class MyAppTest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Verifique se a URL é nula ou vazia
-    final String initialUrl = url ?? 'https://example.com'; 
-
+    final String initialUrl =
+        ModalRoute.of(context)?.settings.arguments as String;
+    print(initialUrl);
     return Scaffold(
       appBar: AppBar(
         leading: Builder(

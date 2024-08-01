@@ -23,7 +23,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
     String precoFormat = preco.toStringAsFixed(2);
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => ProductDetail(data: widget.data),
           ),

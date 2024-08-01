@@ -22,6 +22,7 @@ class AppDrawer extends StatelessWidget {
     final cliente = Provider.of<GetCliente>(context);
 
     return Drawer(
+      backgroundColor: Color.fromARGB(255, 217, 232, 255),
       child: SingleChildScrollView(
         child: Column(
           children: [
@@ -29,130 +30,165 @@ class AppDrawer extends StatelessWidget {
               title: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'Bem Vindo $nome!',
+                  'Bem Vindo !',
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
               automaticallyImplyLeading: false,
-              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: Color.fromRGBO(37, 60, 78, 1),
             ),
-            const Divider(),
-            ListTile(
-              leading: const FaIcon(FontAwesomeIcons.house),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).popAndPushNamed(AppRoutes.home);
-              },
+            Container(
+              height: 150,
+              width: 150,
+              child: Image.asset('assets/img/logo_plp.png'),
             ),
-            const Divider(),
-            ExpansionTile(
-              title: const Text('Coleções'),
-              leading: const FaIcon(FontAwesomeIcons.bagShopping),
-              children: [
-                ListTile(
-                  title: const Text('Mascaras do Crepúsculo'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).pushNamed(AppRoutes.colection,
-                        arguments: 'Mascaras do Crepúsculo');
-                  },
-                ),
-                ListTile(
-                  title: const Text('Forças Temporais'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).pushNamed(AppRoutes.colection,
-                        arguments: 'Forças Temporais');
-                  },
-                ),
-                ListTile(
-                  title: const Text('Destinos de Paldea'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).pushNamed(AppRoutes.colection,
-                        arguments: 'Destinos de Paldea');
-                  },
-                ),
-                ListTile(
-                  title: const Text('Fenda Paradoxal'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).pushNamed(AppRoutes.colection,
-                        arguments: 'Fenda Paradoxal');
-                  },
-                ),
-                ListTile(
-                  title: const Text('Escarlate e Violeta 151'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).pushNamed(AppRoutes.colection,
-                        arguments: 'Escarlate e Violeta 151');
-                  },
-                ),
-              ],
-            ),
-            const Divider(),
-            ListTile(
-              leading: const FaIcon(FontAwesomeIcons.store),
-              title: const Text('Produtos'),
-              onTap: () {
-                onOptionSelected('Produtos');
-                Navigator.pop(context);
-              },
-            ),
-            const Divider(),
-            if (level == 'Admin')
-              ListTile(
-                leading: const FaIcon(FontAwesomeIcons.gear),
-                title: const Text('Gerenciar'),
+            Text('Nome'),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ListTile(
+                leading: const FaIcon(FontAwesomeIcons.user),
+                title: const Text('Entrar'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.of(context).popAndPushNamed(AppRoutes.admHome);
+                  Navigator.of(context).popAndPushNamed(AppRoutes.home);
                 },
               ),
-            if (level == 'Admin') const Divider(),
-            ExpansionTile(
-              title: const Text('Contatos'),
-              leading: const FaIcon(FontAwesomeIcons.addressCard),
-              children: [
-                ListTile(
-                  leading: const FaIcon(FontAwesomeIcons.solidEnvelope),
-                  title: const Text('adm@plpstore.com.br'),
-                  onTap: () {
-                  },
-                ),
-                ListTile(
-                  leading: const FaIcon(FontAwesomeIcons.instagram),
-                  title: const Text('@plpstore_'),
-                  onTap: () {
-                    FuncaoExterna().instagram();
-                  },
-                ),
-                ListTile(
-                  leading: const FaIcon(FontAwesomeIcons.whatsapp),
-                  title: const Text('(13) 99618-7797'),
-                  onTap: () {
-                    FuncaoExterna().whatsApp();
-                  },
-                ),
-              ],
             ),
-            const Divider(),
-            ListTile(
-              leading: const FaIcon(FontAwesomeIcons.rightFromBracket),
-              title: const Text(
-                'Sair',
-                style: TextStyle(color: Colors.red),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ListTile(
+                leading: const FaIcon(FontAwesomeIcons.house),
+                title: const Text('Home'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).popAndPushNamed(AppRoutes.home);
+                },
               ),
-              iconColor: Colors.red,
-              onTap: () {
-                user.logout();
-                cart.clean();
-                cliente.sair();
-                Navigator.pop(context);
-                Navigator.of(context).popAndPushNamed(AppRoutes.home);
-              },
+            ),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ExpansionTile(
+                title: const Text('Coleções'),
+                leading: const FaIcon(FontAwesomeIcons.bagShopping),
+                children: [
+                  ListTile(
+                    title: const Text('Mascaras do Crepúsculo'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AppRoutes.colection,
+                          arguments: 'Mascaras do Crepúsculo');
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Forças Temporais'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AppRoutes.colection,
+                          arguments: 'Forças Temporais');
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Destinos de Paldea'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AppRoutes.colection,
+                          arguments: 'Destinos de Paldea');
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Fenda Paradoxal'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AppRoutes.colection,
+                          arguments: 'Fenda Paradoxal');
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Escarlate e Violeta 151'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).pushNamed(AppRoutes.colection,
+                          arguments: 'Escarlate e Violeta 151');
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ListTile(
+                leading: const FaIcon(FontAwesomeIcons.store),
+                title: const Text('Produtos'),
+                onTap: () {
+                  onOptionSelected('Produtos');
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+            if (level == 'Admin')
+              Card(
+                elevation: 8,
+                color: Color.fromARGB(255, 217, 232, 255),
+                child: ListTile(
+                  leading: const FaIcon(FontAwesomeIcons.gear),
+                  title: const Text('Gerenciar'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).popAndPushNamed(AppRoutes.admHome);
+                  },
+                ),
+              ),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ExpansionTile(
+                title: const Text('Contatos'),
+                leading: const FaIcon(FontAwesomeIcons.addressCard),
+                children: [
+                  ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.solidEnvelope),
+                    title: const Text('adm@plpstore.com.br'),
+                    onTap: () {},
+                  ),
+                  ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.instagram),
+                    title: const Text('@plpstore_'),
+                    onTap: () {
+                      FuncaoExterna().instagram();
+                    },
+                  ),
+                  ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.whatsapp),
+                    title: const Text('(13) 99618-7797'),
+                    onTap: () {
+                      FuncaoExterna().whatsApp();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              elevation: 8,
+              color: Color.fromARGB(255, 217, 232, 255),
+              child: ListTile(
+                leading: const FaIcon(FontAwesomeIcons.rightFromBracket),
+                title: const Text(
+                  'Sair',
+                  style: TextStyle(color: Colors.red),
+                ),
+                iconColor: Colors.red,
+                onTap: () {
+                  user.logout();
+                  cart.clean();
+                  cliente.sair();
+                  Navigator.pop(context);
+                  Navigator.of(context).popAndPushNamed(AppRoutes.home);
+                },
+              ),
             )
           ],
         ),

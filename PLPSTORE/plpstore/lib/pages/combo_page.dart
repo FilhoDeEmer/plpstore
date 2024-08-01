@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plpstore/components/cad_combo.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/produtos_list.dart';
 import 'package:plpstore/pages/edit_product_combo_page.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +55,7 @@ class _ComboPageState extends State<ComboPage> {
         future: _collectionsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: PokeballLoading());
           } else if (snapshot.hasError) {
             return const Center(child: Text('Erro ao carregar combos'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

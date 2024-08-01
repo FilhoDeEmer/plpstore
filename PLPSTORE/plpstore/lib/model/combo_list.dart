@@ -29,6 +29,7 @@ class ComboList with ChangeNotifier {
           (existingItem) => CartItem(
               productCod: existingItem.productCod,
               name: existingItem.name,
+              image: existingItem.image,
               quantity: existingItem.quantity + 1,
               price: existingItem.price,
               qntMax: existingItem.qntMax));
@@ -44,6 +45,7 @@ class ComboList with ChangeNotifier {
           return CartItem(
             productCod: existingItem.productCod,
             name: existingItem.name,
+            image: existingItem.image,
             quantity: existingItem.quantity + 1,
             price: existingItem.price,
             qntMax: existingItem.qntMax,
@@ -58,6 +60,7 @@ class ComboList with ChangeNotifier {
         () => CartItem(
           productCod: product.id,
           name: product.nome,
+          image: product.imagem,
           quantity: 1,
           price: double.parse(product.valor),
           qntMax: int.parse(product.estoque),
@@ -85,6 +88,7 @@ class ComboList with ChangeNotifier {
         (existingItem) => CartItem(
             productCod: existingItem.productCod,
             name: existingItem.name,
+            image: existingItem.image,
             quantity: existingItem.quantity - 1,
             price: existingItem.price,
             qntMax: existingItem.qntMax),

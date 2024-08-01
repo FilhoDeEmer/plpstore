@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/product.dart';
 
 class EditDetailProductPage extends StatefulWidget {
@@ -435,7 +436,7 @@ class _EditDetailProductPageState extends State<EditDetailProductPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
+              PokeballLoading(),
               SizedBox(height: 16),
               Text('Salvando'),
             ],

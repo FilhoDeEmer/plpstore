@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
@@ -53,6 +54,7 @@ class _OrderPageState extends State<OrderPage> {
       valorTotal = valorPedido + valorFrete;
     });
   }
+
   late bool _isFirstTime;
 
   Future<void> _loadUserData() async {
@@ -87,8 +89,8 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Future<void> _launchInWebViewWithoutDomStorage(Uri url) async {
-    Navigator.of(context).popAndPushNamed(AppRoutes.checkout);
+  Future<void> _launchInWebViewWithoutDomStorage(String url) async {
+    Navigator.of(context).popAndPushNamed(AppRoutes.checkout, arguments: url);
   }
 
   String? _envioError;
@@ -143,10 +145,8 @@ class _OrderPageState extends State<OrderPage> {
       urlPayment = await gerarPedido.criarPreferencia(
           valorTotal, userProvider.getUserId(), saleId.toString());
       if (urlPayment['id_payment'] != 'fail') {
-        final Uri toLaunch = Uri.parse(urlPayment['init_point'] as String);
-        await _launchInWebViewWithoutDomStorage(toLaunch);
+        await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
         //gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
-        print(urlPayment['test_init_point']); // para teste de pagamento
       }
       cart.clean();
     }
@@ -169,9 +169,17 @@ class _OrderPageState extends State<OrderPage> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+          onPressed: () {
+            Navigator.of(context)
+                .popAndPushNamed(AppRoutes.home);
+          },
+        ),
+        toolbarHeight: 80,
         title: const Text('Pedido', style: TextStyle(color: Colors.white)),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue,
+        backgroundColor: Color.fromRGBO(212, 175, 55, 1),
         centerTitle: true,
       ),
       body: LayoutBuilder(
@@ -344,7 +352,7 @@ class _OrderPageState extends State<OrderPage> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                const Text('Valor do frete'),
+                Text('Valor do frete: ${valorFrete.toStringAsFixed(2)}'),
                 Text('Valor Total: ${valorTotal.toStringAsFixed(2)}'),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

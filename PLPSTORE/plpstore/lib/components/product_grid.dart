@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/components/product_grid_item.dart';
 import 'package:plpstore/model/product.dart';
 import 'package:plpstore/model/produtos_list.dart';
@@ -8,16 +9,14 @@ import 'package:provider/provider.dart';
 
 class ProductGrid extends StatefulWidget {
   final String colecao;
-  const ProductGrid({
-    super.key,
-    required this.colecao,
-  });
+
+  const ProductGrid({Key? key, required this.colecao}) : super(key: key);
 
   @override
   State<ProductGrid> createState() => _ProductGridState();
 }
 
-const List<int> list = [24, 50, 100];
+const List<int> itemsPerPageOptions = [24, 50, 100];
 
 class _ProductGridState extends State<ProductGrid> {
   String searchTerm = '';
@@ -27,7 +26,7 @@ class _ProductGridState extends State<ProductGrid> {
   bool emEstoque = false;
   late Future<List<Product>> _allProductsFuture;
   final TextEditingController _searchController = TextEditingController();
-  int itemsPerPage = 24;
+  int itemsPerPage = itemsPerPageOptions.first;
   int currentPage = 1;
   bool _isSearchVisible = true;
   late ScrollController _scrollController;
@@ -36,10 +35,8 @@ class _ProductGridState extends State<ProductGrid> {
   void initState() {
     super.initState();
 
-    final productProvider =
-        Provider.of<ProductProvider>(context, listen: false);
-    _allProductsFuture =
-        productProvider.initializeAllProductsFuture(widget.colecao);
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    _allProductsFuture = productProvider.initializeAllProductsFuture(widget.colecao);
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
@@ -58,8 +55,7 @@ class _ProductGridState extends State<ProductGrid> {
           _isSearchVisible = true;
         });
       }
-    } else if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.reverse) {
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
       if (_isSearchVisible) {
         setState(() {
           _isSearchVisible = false;
@@ -82,74 +78,50 @@ class _ProductGridState extends State<ProductGrid> {
     setState(() {
       currentPage++;
     });
-    _scrollController.animateTo(0.0,
-        duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
   void _previousPage() {
     setState(() {
       currentPage--;
     });
-    _scrollController.animateTo(0.0,
-        duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+  }
+
+  List<Product> _applyFilters(List<Product> products) {
+    if (energia) {
+      products = products.where((product) => product.subCategoriaNome.contains('Energia')).toList();
+    } else if (pokemon) {
+      products = products.where((product) => product.subCategoriaNome.contains('Pokemon')).toList();
+    } else if (treinador) {
+      products = products.where((product) => product.subCategoriaNome.contains('Treinador')).toList();
+    } else if (emEstoque) {
+      products = products.where((product) => int.parse(product.estoque) > 0).toList();
+    } else {
+      products = products.where((product) => product.nome.toLowerCase().contains(searchTerm)).toList();
+    }
+    return products;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Product> productList;
     return FutureBuilder<List<Product>>(
       future: _allProductsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-          // } else if (snapshot.hasError ) {
-          //   return Center(child: Text(snapshot.error.toString())); tem que retornar quandso for fazer teste, mas acho que não vai mais precisar
-        } else if (!snapshot.hasData ||
-            snapshot.data!.isEmpty ||
-            snapshot.hasError) {
-          return const Center(child: Text('Nenhum produto encontrado.'));
+          return const Center(child: PokeballLoading());
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty || snapshot.hasError) {
+          return const Center(child: Text('Nenhum produto encontrado.', style: TextStyle(color: Color.fromRGBO(177, 136, 2, 1))));
         } else {
-          if (energia) {
-            productList = snapshot.data!;
-            productList = productList
-                .where((product) =>
-                    product.subCategoriaNome.toString().contains('Energia'))
-                .toList();
-          } else if (pokemon) {
-            productList = snapshot.data!;
-            productList = productList
-                .where((product) =>
-                    product.subCategoriaNome.toString().contains('Pokemon'))
-                .toList();
-          } else if (treinador) {
-            productList = snapshot.data!;
-            productList = productList
-                .where((product) =>
-                    product.subCategoriaNome.toString().contains('Treinador'))
-                .toList();
-          } else if (emEstoque) {
-            productList = snapshot.data!;
-            productList = productList
-                .where((product) =>
-                    int.parse(product.estoque) > 0 )
-                .toList();
-          } else {
-            productList = snapshot.data!;
-            productList = productList
-                .where((product) =>
-                    product.nome.toString().toLowerCase().contains(searchTerm))
-                .toList();
-          }
+          List<Product> productList = _applyFilters(snapshot.data!);
 
           int totalItems = productList.length;
           int totalPages = (totalItems / itemsPerPage).ceil();
           int startIndex = (currentPage - 1) * itemsPerPage;
           int endIndex = startIndex + itemsPerPage;
-          if (endIndex > totalItems) {
-            endIndex = totalItems;
-          }
-          List<Product> paginatedProducts =
-              productList.sublist(startIndex, endIndex);
+          if (endIndex > totalItems) endIndex = totalItems;
+          List<Product> paginatedProducts = productList.sublist(startIndex, endIndex);
+
           return Column(
             children: [
               Visibility(
@@ -158,28 +130,18 @@ class _ProductGridState extends State<ProductGrid> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        // height: 50,
-                        child: widget.colecao.split(',').first != 'Buscar'
-                            ? TextField(
-                                controller: _searchController,
-                                onChanged: searchProduct,
-                                decoration: const InputDecoration(
-                                  suffixIcon: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: FaIcon(
-                                      FontAwesomeIcons.searchengin,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 10.0),
-                                  border: OutlineInputBorder(),
-                                  hintText: 'Buscar',
-                                ),
-                              )
-                            : null,
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: searchProduct,
+                        decoration: const InputDecoration(
+                          suffixIcon: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: FaIcon(FontAwesomeIcons.searchengin, color: Colors.black),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                          border: OutlineInputBorder(),
+                          hintText: 'Buscar',
+                        ),
                       ),
                     ),
                     FittedBox(
@@ -237,32 +199,32 @@ class _ProductGridState extends State<ProductGrid> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Checkbox(
-                              checkColor: Colors.white,
-                              value: emEstoque,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  emEstoque = value!;
-                                  currentPage = 1;
-                                });
-                              },
-                            ),
-                            const Text('Em estoque'),
-                            const Text('Produtos por página'),
-                            
-                    DropdownButton(
-                        value: itemsPerPage,
-                        items: list.map<DropdownMenuItem<int>>((int value) {
-                          return DropdownMenuItem(
-                            value: value,
-                            child: Text(value.toString()),
-                          );
-                        }).toList(),
-                        onChanged: (int? value) {
-                          setState(() {
-                            currentPage = 1;
-                            itemsPerPage = value!;
-                          });
-                        }),
+                      checkColor: Colors.white,
+                      value: emEstoque,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          emEstoque = value!;
+                          currentPage = 1;
+                        });
+                      },
+                    ),
+                    const Text('Em estoque'),
+                    const Text('Produtos por página'),
+                    DropdownButton<int>(
+                      value: itemsPerPage,
+                      items: itemsPerPageOptions.map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(value.toString()),
+                        );
+                      }).toList(),
+                      onChanged: (int? value) {
+                        setState(() {
+                          currentPage = 1;
+                          itemsPerPage = value!;
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -277,26 +239,23 @@ class _ProductGridState extends State<ProductGrid> {
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5,
                   ),
-                  itemBuilder: (context, index) => ProductGridItem(
-                    data: paginatedProducts[index],
-                  ),
+                  itemBuilder: (context, index) => ProductGridItem(data: paginatedProducts[index]),
                 ),
               ),
               Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     onPressed: currentPage > 1 ? _previousPage : null,
-                    icon: const FaIcon(FontAwesomeIcons.arrowLeft)
+                    icon: const FaIcon(FontAwesomeIcons.arrowLeft),
                   ),
                   Text('Página $currentPage de $totalPages'),
                   IconButton(
                     onPressed: currentPage < totalPages ? _nextPage : null,
                     icon: const FaIcon(FontAwesomeIcons.arrowRight),
                   ),
-                    
-                  ],
-                ),
+                ],
+              ),
             ],
           );
         }

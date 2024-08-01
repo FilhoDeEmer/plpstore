@@ -16,6 +16,7 @@ class CartItemWidget extends StatelessWidget {
         .format(cartItem.price * cartItem.quantity);
     String precoUni = NumberFormat.currency(locale: 'pt-BR', symbol: 'R\$')
         .format(cartItem.price);
+
     return Dismissible(
       key: ValueKey(cartItem.productCod),
       direction: DismissDirection.endToStart,
@@ -23,18 +24,11 @@ class CartItemWidget extends StatelessWidget {
         color: Theme.of(context).colorScheme.error,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 4,
-        ),
-        child: const Icon(
-          Icons.delete,
-          color: Colors.white,
-          size: 40,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+        child: const Icon(Icons.delete, color: Colors.white, size: 40),
       ),
-      confirmDismiss: (_) {
-        return showDialog<bool>(
+      confirmDismiss: (_) async {
+        return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Tem Certeza?'),
@@ -42,52 +36,62 @@ class CartItemWidget extends StatelessWidget {
             actions: [
               TextButton(
                 child: const Text('Não'),
-                onPressed: () {
-                  Navigator.of(ctx).pop(false);
-                },
+                onPressed: () => Navigator.of(ctx).pop(false),
               ),
               TextButton(
                 child: const Text('Sim'),
-                onPressed: () {
-                  Navigator.of(ctx).pop(true);
-                },
+                onPressed: () => Navigator.of(ctx).pop(true),
               ),
             ],
           ),
         );
       },
       onDismissed: (_) {
-        Provider.of<Cart>(
-          context,
-          listen: false,
-        ).removeItem(cartItem.productCod);
+        Provider.of<Cart>(context, listen: false)
+            .removeItem(cartItem.productCod);
       },
       child: Card(
-        margin: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 4,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
         child: Padding(
           padding: const EdgeInsets.all(8),
-          child: ListTile(
-            
-            title: Text('${cartItem.name} ${cartItem.productCod}'),
-            subtitle: Row(
-              children:[
-                Text('Uni.: $precoUni'),
-                IconButton(
-                    onPressed: () => _decrementQuantity(context),
-                    icon: const Icon(
-                      Icons.remove,
-                      color: Colors.red,
-                    )),
-                Text('${cartItem.quantity}x'),
-                IconButton(
-                    onPressed: () => _incrementQuantity(context),
-                    icon: const Icon(Icons.add, color: Colors.blue)),
-              ],
-            ),
-            trailing: Text(totalUni),
+          child: Row(
+            children: [
+              ClipOval(
+                child: Image.network(
+                  "https://plpstore.com.br/img/produtos/${cartItem.image}",
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 10), 
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${cartItem.name} ${cartItem.productCod}'),
+                    Text('Uni.: $precoUni'),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => _decrementQuantity(context),
+                          icon: const Icon(Icons.remove, color: Colors.red),
+                        ),
+                        Text('${cartItem.quantity}x'),
+                        IconButton(
+                          onPressed: () => _incrementQuantity(context),
+                          icon: const Icon(Icons.add, color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                totalUni,
+                textAlign: TextAlign.right,
+              ),
+            ],
           ),
         ),
       ),
@@ -95,7 +99,7 @@ class CartItemWidget extends StatelessWidget {
   }
 
   void _incrementQuantity(BuildContext context) {
-      Provider.of<Cart>(context, listen: false).updateProduct(cartItem);
+    Provider.of<Cart>(context, listen: false).updateProduct(cartItem);
   }
 
   void _decrementQuantity(BuildContext context) {
@@ -111,18 +115,14 @@ class CartItemWidget extends StatelessWidget {
           actions: [
             TextButton(
               child: const Text('Não'),
-              onPressed: () {
-                Navigator.of(ctx).pop(false);
-              },
+              onPressed: () => Navigator.of(ctx).pop(false),
             ),
             TextButton(
               child: const Text('Sim'),
               onPressed: () {
                 Navigator.of(ctx).pop(true);
-                Provider.of<Cart>(
-                  context,
-                  listen: false,
-                ).removeItem(cartItem.productCod);
+                Provider.of<Cart>(context, listen: false)
+                    .removeItem(cartItem.productCod);
               },
             ),
           ],

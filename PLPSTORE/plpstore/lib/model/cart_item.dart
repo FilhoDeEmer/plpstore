@@ -5,6 +5,7 @@ class CartItem {
   final int quantity;
   final double price;
   final int qntMax;
+  final String image;
 
   CartItem({
     required this.productCod,
@@ -12,5 +13,6 @@ class CartItem {
     required this.quantity,
     required this.price,
     required this.qntMax,
+    required this.image,
   });
 }

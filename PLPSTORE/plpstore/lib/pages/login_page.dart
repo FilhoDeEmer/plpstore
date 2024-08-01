@@ -17,8 +17,8 @@ class LoginPage extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(217, 232, 255, 1),
-                  Color.fromRGBO(172, 205, 255, 1),
+                  Color.fromRGBO(196, 166, 69, 0.655),
+                  Color.fromRGBO(95, 81, 36, 0.745),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
                     // Logo
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Image.network("https://plpstore.com.br/img/logo.png",width: 280,
+                      child: Image.asset("assets/img/logo_plp.png",width: 250,
                       height: 280,),
                       
                       
@@ -47,7 +47,7 @@ class LoginPage extends StatelessWidget {
                       },
                       child: const Text(
                         'Acessar a Loja',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: Color.fromRGBO(244, 67, 54, 1)),
                       ),
                     ),
                     _buildContactRow(
@@ -84,19 +84,22 @@ class LoginPage extends StatelessWidget {
     required String text,
     required VoidCallback onPressed,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        FaIcon(icon, color: iconColor),
-        const SizedBox(width: 5),
-        TextButton(
-          onPressed: onPressed,
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.black),
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, top: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          FaIcon(icon, color: iconColor),
+          const SizedBox(width: 5),
+          TextButton(
+            onPressed: onPressed,
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.black),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

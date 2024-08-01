@@ -31,6 +31,7 @@ class Cart with ChangeNotifier {
               name: existingItem.name,
               quantity: existingItem.quantity + 1,
               price: existingItem.price,
+              image: existingItem.image,
               qntMax: existingItem.qntMax));
     }
     notifyListeners();
@@ -46,6 +47,7 @@ class Cart with ChangeNotifier {
             name: existingItem.name,
             quantity: existingItem.quantity + 1,
             price: existingItem.price,
+            image: existingItem.image,
             qntMax: existingItem.qntMax,
           );
         } else {
@@ -60,6 +62,7 @@ class Cart with ChangeNotifier {
           name: product.nome,
           quantity: 1,
           price: double.parse(product.valor),
+          image: product.imagem,
           qntMax: int.parse(product.estoque),
         ),
       );
@@ -76,6 +79,7 @@ class Cart with ChangeNotifier {
             name: existingItem.name,
             quantity: existingItem.quantity + qnt,
             price: existingItem.price,
+            image: existingItem.image,
             qntMax: existingItem.qntMax,
           );
         } else {
@@ -84,6 +88,7 @@ class Cart with ChangeNotifier {
             name: existingItem.name,
             quantity: existingItem.qntMax,
             price: existingItem.price,
+            image: existingItem.image,
             qntMax: existingItem.qntMax,
           );
         }
@@ -94,6 +99,7 @@ class Cart with ChangeNotifier {
         () => CartItem(
           productCod: product.id,
           name: product.nome,
+          image: product.imagem,
           quantity: qnt,
           price: double.parse(product.valor),
           qntMax: int.parse(product.estoque),
@@ -121,6 +127,7 @@ class Cart with ChangeNotifier {
         (existingItem) => CartItem(
             productCod: existingItem.productCod,
             name: existingItem.name,
+            image: existingItem.image,
             quantity: existingItem.quantity - 1,
             price: existingItem.price,
             qntMax: existingItem.qntMax),

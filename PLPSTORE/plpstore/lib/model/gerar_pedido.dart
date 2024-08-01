@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,22 +16,22 @@ class GerarPedido with ChangeNotifier {
       }
       return 'ID não encontrado';
     } else {
-      print(responseData);
       return 'fail';
     }
   }
 
   Future<Map<String, String>> criarPreferencia(double price, String id_user, String id_venda) async {
+    String  idProduct = id_user + id_venda;
     const String url = 'https://plpstore.com.br/apiEmerson/preference.php';
-    try {
+    try {      
       final response = await http.post(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'id': Random(),
-          'unit_price': price.toString(),
+          'id': idProduct,
+          'unit_price': price,
           'id_user' : id_user,
           'id_venda' : id_venda
         }),
@@ -54,7 +53,6 @@ class GerarPedido with ChangeNotifier {
         };
       }
     } catch (e) {
-      print('Erro ao conectar: $e');
       return {
         'id_payment': 'fail',
         'init_point': 'Falha ao criar preferência',
@@ -62,18 +60,16 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
-  Future<void> verificarpagamento(String id) async {
-    String url = 'https://api.mercadopago.com/v1/payments/$id';
+  // Future<void> verificarpagamento(String id) async {
+  //   String url = 'https://api.mercadopago.com/v1/payments/$id';
 
-    final response = await http.post(
-      Uri.parse(url),
-    );
-    if (response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      print(responseData);
-    } else {
-      print('falha');
-    }
-  }
+  //   final response = await http.post(
+  //     Uri.parse(url),
+  //   );
+  //   if (response.statusCode == 201) {
+  //     final responseData = jsonDecode(response.body);
+  //   } else {
+  //   }
+  // }
 
 }

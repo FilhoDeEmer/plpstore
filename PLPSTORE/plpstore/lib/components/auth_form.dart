@@ -242,6 +242,7 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
+      color: Color.fromRGBO(212, 175, 55, 1),
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       margin: const EdgeInsets.all(20),
@@ -370,7 +371,7 @@ class _AuthFormState extends State<AuthForm> {
                 child: ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(0, 101, 255, 1),
+                    backgroundColor: Color.fromRGBO(248, 147, 31, 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

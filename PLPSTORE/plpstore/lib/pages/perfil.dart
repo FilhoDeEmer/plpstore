@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/auth.dart';
+import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/cliente.dart';
 import 'package:plpstore/model/get_clientes.dart';
+import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class PerfilPage extends StatefulWidget {
@@ -14,10 +17,12 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
+  late Future<void> _userDataFuture;
+
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _userDataFuture = _loadUserData();
   }
 
   Future<void> _loadUserData() async {
@@ -28,54 +33,78 @@ class _PerfilPageState extends State<PerfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cliente = Provider.of<GetCliente>(context).cliente;
+    final user = Provider.of<Auth>(context);
+    final cart = Provider.of<Cart>(context);
+    final clienteProvider = Provider.of<GetCliente>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Perfil',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue,
-        centerTitle: true,
+      resizeToAvoidBottomInset: false,
+      body: FutureBuilder<void>(
+        future: _userDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: PokeballLoading());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro ao carregar dados'));
+          } else {
+            Cliente cliente = clienteProvider.cliente!;
+
+            return cliente.cpf.isEmpty
+                ? _buildLoginPrompt()
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 20),
+                          _buildStatsGrid(),
+                          const SizedBox(height: 20),
+                          _buildClientInfo(cliente),
+                          _buildAddressInfo(context, cliente),
+                          _buildLogoutButton(user, cart, cliente),
+                        ],
+                      ),
+                    ),
+                  );
+          }
+        },
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-//               CircleAvatar(
-//                 radius: 60,
-//                 backgroundImage:const AssetImage('assets/img/profile.png')
-// ,
-//               ),
-              const SizedBox(height: 20),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildGridItem('Total de Pedidos', '0', Colors.blue.shade900),
-                  _buildGridItem(
-                      'Pedidos Finalizados', '0', Colors.green.shade900),
-                  _buildGridItem('Pedidos Pendentes', '0', Colors.red.shade900),
-                  _buildGridItem(
-                      'Aguardando Entrega', '0', Colors.amber.shade900),
-                ],
-              ),
-              const SizedBox(height: 20),
-              cliente != null
-                  ? _buildClientInfo(cliente)
-                  : const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 20),
-              cliente != null
-                  ? _buildAddressInfo(context, cliente)
-                  : const Center(child: CircularProgressIndicator()),
-            ],
+    );
+  }
+
+  Widget _buildLoginPrompt() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+            },
+            child: Text(
+              'Entre ou Cadastre-se',
+              style: TextStyle(
+                  color: Color.fromRGBO(192, 148, 2, 1),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
+            ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildStatsGrid() {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _buildGridItem('Total de Pedidos', '0', Colors.blue.shade900),
+        _buildGridItem('Pedidos Finalizados', '0', Colors.green.shade900),
+        _buildGridItem('Pedidos Pendentes', '0', Colors.red.shade900),
+        _buildGridItem('Aguardando Entrega', '0', Colors.amber.shade900),
+      ],
     );
   }
 
@@ -89,10 +118,11 @@ class _PerfilPageState extends State<PerfilPage> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-                color: color.withOpacity(0.2),
-                offset: const Offset(0, 3),
-                blurRadius: 5,
-                spreadRadius: 2),
+              color: color.withOpacity(0.2),
+              offset: const Offset(0, 3),
+              blurRadius: 5,
+              spreadRadius: 2,
+            ),
           ],
         ),
         child: Padding(
@@ -108,8 +138,11 @@ class _PerfilPageState extends State<PerfilPage> {
               Text(
                 value,
                 style: TextStyle(
-                    fontSize: 24, fontWeight: FontWeight.bold, color: color),
-              )
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
             ],
           ),
         ),
@@ -173,100 +206,140 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
             const SizedBox(height: 10),
             Text(
-                'Telefone: ${(cliente.telefone != '') ? cliente.telefone : ''}'),
-            Text('Rua: ${(cliente.rua != 'null') ? cliente.rua : ''}'),
-            Text('Cidade: ${(cliente.cidade != 'null') ? cliente.cidade : ''}'),
-            Text('Número: ${(cliente.numero != 'null') ? cliente.numero : ''}'),
-            Text('Estado: ${(cliente.estado != 'null') ? cliente.estado : ''}'),
-            Text('Bairro: ${(cliente.bairro != 'null') ? cliente.bairro : ''}'),
-            Text('CEP: ${(cliente.cep != 'null') ? cliente.cep : ''}'),
+                'Telefone: ${cliente.telefone.isNotEmpty ? cliente.telefone : ''}'),
+            Text(
+                'Rua: ${cliente.rua.isNotEmpty && cliente.rua != 'null' ? cliente.rua : ''}'),
+            Text(
+                'Cidade: ${cliente.cidade.isNotEmpty && cliente.cidade != 'null' ? cliente.cidade : ''}'),
+            Text(
+                'Número: ${cliente.numero.isNotEmpty && cliente.numero != 'null' ? cliente.numero : ''}'),
+            Text(
+                'Estado: ${cliente.estado.isNotEmpty && cliente.estado != 'null' ? cliente.estado : ''}'),
+            Text(
+                'Bairro: ${cliente.bairro.isNotEmpty && cliente.bairro != 'null' ? cliente.bairro : ''}'),
+            Text(
+                'CEP: ${cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : ''}'),
           ],
         ),
       ),
     );
   }
-}
 
-void editInfo(BuildContext context, Cliente cliente) {
-  final phoneController = MaskedTextController(mask: '(00) 00000-0000');
-  final cepController = MaskedTextController(mask: '00000-000');
-  TextEditingController ruaController =
-      TextEditingController(text: (cliente.rua != 'null') ? cliente.rua : '');
-  TextEditingController cidadeController = TextEditingController(
-      text: (cliente.cidade != 'null') ? cliente.cidade : '');
-  TextEditingController numeroController = TextEditingController(
-      text: (cliente.numero != 'null') ? cliente.numero : '');
-  TextEditingController estadoController = TextEditingController(
-      text: (cliente.estado != 'null') ? cliente.estado : '');
-  TextEditingController bairroController = TextEditingController(
-      text: (cliente.bairro != 'null') ? cliente.bairro : '');
-  cepController.text = (cliente.cep != '') ? cliente.telefone : '';
-  phoneController.text = (cliente.telefone != '') ? cliente.telefone : '';
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Editar Informações'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Telefone'),
-              ),
-              TextFormField(
-                controller: ruaController,
-                decoration: const InputDecoration(labelText: 'Rua'),
-              ),
-              TextFormField(
-                controller: bairroController,
-                decoration: const InputDecoration(labelText: 'Bairro'),
-              ),
-              TextFormField(
-                controller: cidadeController,
-                decoration: const InputDecoration(labelText: 'Cidade'),
-              ),
-              TextFormField(
-                controller: numeroController,
-                decoration: const InputDecoration(labelText: 'Número'),
-              ),
-              TextFormField(
-                controller: estadoController,
-                decoration: const InputDecoration(labelText: 'Estado'),
-              ),
-              TextFormField(
-                controller: cepController,
-                decoration: const InputDecoration(labelText: 'CEP'),
-              ),
-            ],
-          ),
+  Widget _buildLogoutButton(Auth user, Cart cart, Cliente cliente) {
+    return Card(
+      elevation: 8,
+      color: Color.fromARGB(202, 250, 145, 145),
+      child: ListTile(
+        leading: const FaIcon(FontAwesomeIcons.rightFromBracket),
+        title: const Text(
+          'Sair',
+          style: TextStyle(color: Colors.red),
         ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              cliente.atualizarEndereco(
-                telefone: phoneController.text,
-                rua: ruaController.text,
-                cidade: cidadeController.text,
-                numero: numeroController.text,
-                estado: estadoController.text,
-                cep: cepController.text,
-                bairro: bairroController.text,
-              );
-              Provider.of<GetCliente>(context, listen: false)
-                  .atualizarCliente(cliente);
-              Navigator.of(context).pop();
-            },
-            child: const Text('Salvar'),
+        iconColor: Colors.red,
+        onTap: () {
+          user.logout();
+          cart.clean();
+          cliente.deslogar();
+          Navigator.of(context).popAndPushNamed(AppRoutes.home);
+        },
+      ),
+    );
+  }
+
+  void editInfo(BuildContext context, Cliente cliente) {
+    final phoneController = MaskedTextController(mask: '(00) 00000-0000');
+    final cepController = MaskedTextController(mask: '00000-000');
+    final ruaController = TextEditingController(
+        text:
+            cliente.rua.isNotEmpty && cliente.rua != 'null' ? cliente.rua : '');
+    final cidadeController = TextEditingController(
+        text: cliente.cidade.isNotEmpty && cliente.cidade != 'null'
+            ? cliente.cidade
+            : '');
+    final numeroController = TextEditingController(
+        text: cliente.numero.isNotEmpty && cliente.numero != 'null'
+            ? cliente.numero
+            : '');
+    final estadoController = TextEditingController(
+        text: cliente.estado.isNotEmpty && cliente.estado != 'null'
+            ? cliente.estado
+            : '');
+    final bairroController = TextEditingController(
+        text: cliente.bairro.isNotEmpty && cliente.bairro != 'null'
+            ? cliente.bairro
+            : '');
+    cepController.text =
+        cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : '';
+    phoneController.text =
+        cliente.telefone.isNotEmpty && cliente.telefone != 'null'
+            ? cliente.telefone
+            : '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Editar Informações'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'Telefone'),
+                ),
+                TextFormField(
+                  controller: ruaController,
+                  decoration: const InputDecoration(labelText: 'Rua'),
+                ),
+                TextFormField(
+                  controller: bairroController,
+                  decoration: const InputDecoration(labelText: 'Bairro'),
+                ),
+                TextFormField(
+                  controller: cidadeController,
+                  decoration: const InputDecoration(labelText: 'Cidade'),
+                ),
+                TextFormField(
+                  controller: numeroController,
+                  decoration: const InputDecoration(labelText: 'Número'),
+                ),
+                TextFormField(
+                  controller: estadoController,
+                  decoration: const InputDecoration(labelText: 'Estado'),
+                ),
+                TextFormField(
+                  controller: cepController,
+                  decoration: const InputDecoration(labelText: 'CEP'),
+                ),
+              ],
+            ),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-        ],
-      );
-    },
-  );
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                cliente.atualizarEndereco(
+                  telefone: phoneController.text,
+                  rua: ruaController.text,
+                  cidade: cidadeController.text,
+                  numero: numeroController.text,
+                  estado: estadoController.text,
+                  cep: cepController.text,
+                  bairro: bairroController.text,
+                );
+                Provider.of<GetCliente>(context, listen: false)
+                    .atualizarCliente(cliente);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Salvar'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

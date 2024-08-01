@@ -112,6 +112,8 @@ flutter:
     - assets/img/mascaras_colecao.jpg
     - assets/img/mew_colecao.jpg
     - assets/img/logo_plp.png
+    - assets/img/logo_circulado.png
+    - assets/img/loading_pokeball.png
     - assets/front.html
 
   

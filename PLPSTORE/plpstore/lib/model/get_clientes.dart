@@ -26,6 +26,7 @@ class GetCliente with ChangeNotifier {
     final responseData = jsonDecode(response.body);
 
     if (responseData['code'] == 1) {
+
       Map<String, dynamic> total = responseData['result'];
       _cliente = Cliente(
         nome: total['nome'].toString(),
@@ -88,6 +89,32 @@ class GetCliente with ChangeNotifier {
       _message = responseData['message'];
     }
     notifyListeners();
+  }
+
+  Future<List<dynamic>> pegarPedidos(String idCliente) async {
+    final String url =
+        'https://plpstore.com.br/apis/api/vendas/vendasClientes.php?idUsuario=$idCliente';
+
+    try {
+      final response = await http.post(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['code'] == 1) {
+          return responseData['result'] as List<dynamic>;
+        } else {
+          print('Erro na resposta: ${responseData['message']}');
+          return [];
+        }
+      } else {
+        print('Erro na solicitação: ${response.statusCode}');
+        return [];
+      }
+    } catch (error) {
+      print('Erro ao buscar pedidos: $error');
+      return [];
+    }
   }
 
   String getMessage() {

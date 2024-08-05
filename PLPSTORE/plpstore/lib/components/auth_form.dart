@@ -1,13 +1,13 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/get_clientes.dart';
 import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AuthMode { signup, login }
 
@@ -26,9 +26,11 @@ class _AuthFormState extends State<AuthForm> {
   final _passwordConfirmController = TextEditingController();
   final _cpfController = MaskedTextController(mask: '000.000.000-00');
   final _formKey = GlobalKey<FormState>();
+  bool _rememberMe = false;
   bool _isObscure = true;
   bool _isObscureConfirm = true;
-  
+  bool _isLoading = false;
+
   AuthMode _authMode = AuthMode.login;
 
   @override
@@ -46,11 +48,7 @@ class _AuthFormState extends State<AuthForm> {
 
   void _switchAuthMode() {
     setState(() {
-      if (_isLogin()) {
-        _authMode = AuthMode.signup;
-      } else {
-        _authMode = AuthMode.login;
-      }
+      _authMode = _isLogin() ? AuthMode.signup : AuthMode.login;
     });
   }
 
@@ -92,81 +90,31 @@ class _AuthFormState extends State<AuthForm> {
       ),
     );
   }
-  bool validarCPF(String cpf) {
-    cpf = cpf.replaceAll(RegExp(r'[^\d]'), '');
-
-    if (cpf.length != 11) {
-      return false;
-    }
-
-    if (cpf == '00000000000' ||
-        cpf == '11111111111' ||
-        cpf == '22222222222' ||
-        cpf == '33333333333' ||
-        cpf == '44444444444' ||
-        cpf == '55555555555' ||
-        cpf == '66666666666' ||
-        cpf == '77777777777' ||
-        cpf == '88888888888' ||
-        cpf == '99999999999') {
-      return false;
-    }
-
-    int soma = 0;
-    for (int i = 0; i < 9; i++) {
-      soma += int.parse(cpf[i]) * (10 - i);
-    }
-    int primeiroDigito = (soma * 10) % 11;
-    if (primeiroDigito == 10) {
-      primeiroDigito = 0;
-    }
-
-    if (int.parse(cpf[9]) != primeiroDigito) {
-      return false;
-    }
-
-    soma = 0;
-    for (int i = 0; i < 10; i++) {
-      soma += int.parse(cpf[i]) * (11 - i);
-    }
-    int segundoDigito = (soma * 10) % 11;
-    if (segundoDigito == 10) {
-      segundoDigito = 0;
-    }
-
-    if (int.parse(cpf[10]) != segundoDigito) {
-      return false;
-    }
-
-    return true;
-  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
+    await _savePreferences();
     final navigator = Navigator.of(context);
     Auth auth = Provider.of<Auth>(context, listen: false);
     final GetCliente cliente = Provider.of<GetCliente>(context, listen: false);
     int resposta;
+    setState(() {
+      _isLoading = true;
+    });
 
-    //try {
+    try {
       if (_isLogin()) {
         resposta =
-            await auth.login(_emailController.text, _passwordController.text);        
-        if (resposta == 1) {          
+            await auth.login(_emailController.text, _passwordController.text);
+        if (resposta == 1) {
           cliente.pegaClients(_cpfController.text);
           String level = auth.getLevel();
-          if (level == 'Cliente') {
-            navigator.pushReplacementNamed(AppRoutes.home);
-          } else {
-            navigator.pushReplacementNamed(AppRoutes.admHome);
-          }
-          return;
+          navigator.pushReplacementNamed(
+              level == 'Cliente' ? AppRoutes.home : AppRoutes.admHome);
         } else {
-          _showErrorDialog('Ocorreu um erro : ${auth.getMensagem()}');
-          return;
+          _showErrorDialog('Ocorreu um erro: ${auth.getMensagem()}');
         }
       } else {
         resposta = await auth.signup(
@@ -175,15 +123,19 @@ class _AuthFormState extends State<AuthForm> {
           _nameController.text,
           _cpfController.text,
         );
-        if(resposta == 1) {
+        if (resposta == 1) {
           _showSuccessDialog();
-        }
-        else{
+        } else {
           _showErrorDialog('Ocorreu um erro: ${auth.getMensagem()}');
         }
       }
-
-
+    } catch (error) {
+      _showErrorDialog('Erro ao processar sua solicitação.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _sendPasswordEmail(String email) {
@@ -204,8 +156,17 @@ class _AuthFormState extends State<AuthForm> {
                 decoration: const InputDecoration(
                   labelText: 'E-mail',
                   prefixIcon: FaIcon(FontAwesomeIcons.at),
-                  prefixIconConstraints: BoxConstraints(minHeight: 1, minWidth: 38),
+                  prefixIconConstraints:
+                      BoxConstraints(minHeight: 1, minWidth: 38),
                   contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromRGBO(248, 147, 31, 1)),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (_email) {
@@ -238,165 +199,241 @@ class _AuthFormState extends State<AuthForm> {
     );
   }
 
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (_rememberMe) {
+        _emailController.text = prefs.getString('email') ?? '';
+        _passwordController.text = prefs.getString('password') ?? '';
+      }
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setBool('rememberMe', true); // Corrigido o nome da chave
+      await prefs.setString('email', _emailController.text);
+      await prefs.setString('password', _passwordController.text);
+    } else {
+      await prefs.remove('rememberMe'); // Corrigido o nome da chave
+      await prefs.remove('email');
+      await prefs.remove('password');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    return Card(
-      color: Color.fromRGBO(212, 175, 55, 1),
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      margin: const EdgeInsets.all(20),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        width: deviceSize.width * 0.85,
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  prefixIcon: FaIcon(FontAwesomeIcons.at),
-                  prefixIconConstraints: BoxConstraints(minHeight: 1, minWidth: 38),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (_email) {
-                  final email = _email ?? '';
-                  if (email.trim().isEmpty || !email.contains('@')) {
-                    return 'Informe um e-mail válido.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Senha',
-                  prefixIcon: const FaIcon(FontAwesomeIcons.lock),
-                  prefixIconConstraints: const BoxConstraints(minHeight: 1, minWidth: 38),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _isObscure = !_isObscure;
-                      });
-                    },
-                    icon: FaIcon(_isObscure
-                        ? FontAwesomeIcons.eyeSlash
-                        : FontAwesomeIcons.eye),
-                  ),
-                ),
-                obscureText: _isObscure,
-                controller: _passwordController,
-                validator: (_password) {
-                  final password = _password ?? '';
-                  if (password.isEmpty || password.length < 6) {
-                    return 'Informe uma senha válida.';
-                  }
-                  return null;
-                },
-              ),
-              if (_isSignup())
-                TextFormField(
-                  controller: _passwordConfirmController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar Senha',
-                    prefixIcon: const FaIcon(FontAwesomeIcons.lock),
-                    prefixIconConstraints: const BoxConstraints(minHeight: 1, minWidth: 38),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _isObscureConfirm = !_isObscureConfirm;
-                        });
-                      },
-                      icon: FaIcon(_isObscureConfirm
-                          ? FontAwesomeIcons.eyeSlash
-                          : FontAwesomeIcons.eye),
-                    ),
-                  ),
-                  obscureText: _isObscureConfirm,
-                  validator: (_password) {
-                    final password = _password ?? '';
-                    if (password != _passwordController.text) {
-                      return 'Senhas não conferem.';
-                    }
-                    return null;
-                  },
-                ),
-              if (_isSignup())
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome Completo',
-                    prefixIcon: FaIcon(FontAwesomeIcons.signature),
-                    prefixIconConstraints: BoxConstraints(minHeight: 1, minWidth: 38),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  validator: (_nome) {
-                    final nome = _nome ?? '';
-                    if (nome.trim().isEmpty || nome.length < 5) {
-                      return 'Informe um nome válido.';
-                    }
-                    return null;
-                  },
-                ),
-              if (_isSignup())
-                TextFormField(
-                  controller: _cpfController,
-                  decoration: const InputDecoration(
-                    labelText: 'CPF',
-                    prefixIcon: FaIcon(FontAwesomeIcons.idCardClip),
-                    prefixIconConstraints: BoxConstraints(minHeight: 1, minWidth: 38),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      if (!validarCpf.validarCPF(value)) {
-                        return 'CPF inválido';
+    return _isLoading
+        ? PokeballLoading()
+        : Container(
+            padding: const EdgeInsets.all(16),
+            width: deviceSize.width * 0.85,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'E-mail',
+                    icon: FontAwesomeIcons.at,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (_email) {
+                      final email = _email ?? '';
+                      if (email.trim().isEmpty || !email.contains('@')) {
+                        return 'Informe um e-mail válido.';
                       }
                       return null;
                     },
-                ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 50,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(248, 147, 31, 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                  ),
+                  _buildTextField(
+                    controller: _passwordController,
+                    label: 'Senha',
+                    icon: FontAwesomeIcons.lock,
+                    obscureText: _isObscure,
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      },
+                      icon: FaIcon(
+                        _isObscure
+                            ? FontAwesomeIcons.eyeSlash
+                            : FontAwesomeIcons.eye,
+                      ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                    validator: (_password) {
+                      final password = _password ?? '';
+                      if (password.isEmpty || password.length < 6) {
+                        return 'Informe uma senha válida.';
+                      }
+                      return null;
+                    },
                   ),
-                  child: Text(
-                    _isLogin() ? 'LOGIN' : 'REGISTRAR',
-                    style: const TextStyle(color: Colors.white),
+                  if (_isLogin())
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
+                        ),
+                        Text('Manter Conectado'),
+                      ],
+                    ),
+                  if (_isSignup())
+                    _buildTextField(
+                      controller: _passwordConfirmController,
+                      label: 'Confirmar Senha',
+                      icon: FontAwesomeIcons.lock,
+                      obscureText: _isObscureConfirm,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isObscureConfirm = !_isObscureConfirm;
+                          });
+                        },
+                        icon: FaIcon(
+                          _isObscureConfirm
+                              ? FontAwesomeIcons.eyeSlash
+                              : FontAwesomeIcons.eye,
+                        ),
+                      ),
+                      validator: (_password) {
+                        final password = _password ?? '';
+                        if (password != _passwordController.text) {
+                          return 'Senhas não conferem.';
+                        }
+                        return null;
+                      },
+                    ),
+                  if (_isSignup())
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Nome Completo',
+                      icon: FontAwesomeIcons.signature,
+                      validator: (_nome) {
+                        final nome = _nome ?? '';
+                        if (nome.trim().isEmpty || nome.length < 5) {
+                          return 'Informe um nome válido.';
+                        }
+                        return null;
+                      },
+                    ),
+                  if (_isSignup())
+                    _buildTextField(
+                      controller: _cpfController,
+                      label: 'CPF',
+                      icon: FontAwesomeIcons.idCardClip,
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo obrigatório';
+                        }
+                        if (!validarCpf.validarCPF(value)) {
+                          return 'CPF inválido';
+                        }
+                        return null;
+                      },
+                    ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 50,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 8),
+                      ),
+                      child: Text(
+                        _isLogin() ? 'LOGIN' : 'REGISTRAR',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
-                ),
+                  TextButton(
+                    onPressed: _switchAuthMode,
+                    child: Text(_isLogin() ? 'CADASTRAR' : 'LOGIN',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        )),
+                  ),
+                  TextButton(
+                    onPressed: _passwordRecover,
+                    child: Text('Recuperar Senha?',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                        )),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: _switchAuthMode,
-                child: Text(_isLogin() ? 'CADASTRAR' : 'LOGIN'),
-              ),
-              TextButton(
-                onPressed: _passwordRecover,
-                child: const Text(
-                  'Recuperar Senha?',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
+            ),
+          );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    TextInputType keyboardType = TextInputType.text,
+    FormFieldValidator<String>? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FaIcon(icon, color: Theme.of(context).colorScheme.secondary),
           ),
+          prefixIconConstraints:
+              const BoxConstraints(minHeight: 1, minWidth: 38),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Color.fromARGB(255, 0, 255, 21)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color.fromRGBO(0, 0, 0, 1)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: const Color.fromARGB(255, 255, 0, 0)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: const Color.fromARGB(255, 255, 0, 0)),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          suffixIcon: suffixIcon,
         ),
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        validator: validator,
       ),
     );
   }

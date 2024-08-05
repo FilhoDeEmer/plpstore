@@ -9,5 +9,6 @@ class AppRoutes {
   static const admHome = '/adm/home';
   static const combos = '/adm/combo';
   static const checkout = '/checkout';
+  static const orderDetail = '/orderDetail';
   static const editProduct = '/adm/editProduct';
 }

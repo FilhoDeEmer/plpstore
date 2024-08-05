@@ -28,12 +28,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    index = widget.index ?? 0;
+    index = widget.index ?? 0; 
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     token = Provider.of<Auth>(context);
     cart = Provider.of<Cart>(context);
     cliente = Provider.of<GetCliente>(context);
@@ -96,7 +97,18 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Color.fromRGBO(212, 175, 55, 1),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).appBarTheme.backgroundColor!,
+                Theme.of(context).appBarTheme.foregroundColor!,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
         centerTitle: true,
       ),
       body: _pages[index],

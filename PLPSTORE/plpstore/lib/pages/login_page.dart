@@ -14,14 +14,15 @@ class LoginPage extends StatelessWidget {
         children: [
           // Background gradient
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(196, 166, 69, 0.655),
-                  Color.fromRGBO(95, 81, 36, 0.745),
+                  Theme.of(context).appBarTheme.backgroundColor!,
+                  Theme.of(context).appBarTheme.foregroundColor!,
+
                 ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
           ),
@@ -45,9 +46,9 @@ class LoginPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).popAndPushNamed(AppRoutes.home);
                       },
-                      child: const Text(
+                      child: Text(
                         'Acessar a Loja',
-                        style: TextStyle(color: Color.fromRGBO(244, 67, 54, 1)),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                       ),
                     ),
                     _buildContactRow(
@@ -64,7 +65,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     _buildContactRow(
                       icon: FontAwesomeIcons.envelope,
-                      iconColor: Colors.black,
+                      iconColor: Colors.blue,
                       text: 'adm@plpstore.com.br',
                       onPressed: () {},
                     ),
@@ -84,22 +85,18 @@ class LoginPage extends StatelessWidget {
     required String text,
     required VoidCallback onPressed,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 1),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          FaIcon(icon, color: iconColor),
-          const SizedBox(width: 5),
-          TextButton(
-            onPressed: onPressed,
-            child: Text(
-              text,
-              style: const TextStyle(color: Colors.black),
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FaIcon(icon, color: iconColor),
+        TextButton(
+          onPressed: onPressed,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.black),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

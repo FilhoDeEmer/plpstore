@@ -28,23 +28,35 @@ class _ProductGridPageState extends State<ProductGridPage> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+          icon: FaIcon(FontAwesomeIcons.arrowLeft),
           onPressed: () {
             Navigator.of(context)
-                .popAndPushNamed(AppRoutes.home, arguments: {'index' : 1});
-          }, 
+                .popAndPushNamed(AppRoutes.home, arguments: 1);
+          },
         ),
         title: FittedBox(
           child: Text(
             page,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
               fontSize: 30,
             ),
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Color.fromRGBO(212, 175, 55, 1),
+        iconTheme: IconThemeData(
+          color: Theme.of(context).appBarTheme.foregroundColor!,
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).appBarTheme.backgroundColor!,
+                Theme.of(context).appBarTheme.foregroundColor!,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
         centerTitle: true,
       ),
       body: ProductGrid(
@@ -67,19 +79,19 @@ class _ProductGridPageState extends State<ProductGridPage> {
     switch (index) {
       case 0:
         Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: {'index': index});
+            .popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 1:
         Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: {'index': index});
+            .popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 2:
         Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: {'index': index});
+            .popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 3:
         Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: {'index': index});
+            .popAndPushNamed(AppRoutes.home, arguments: index);
         break;
     }
   }

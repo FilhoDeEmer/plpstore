@@ -21,7 +21,8 @@ class MyAppTest extends StatelessWidget {
             return IconButton(
               icon: const FaIcon(FontAwesomeIcons.arrowLeft),
               onPressed: () {
-                Navigator.of(context).popAndPushNamed(AppRoutes.perfil);
+                Navigator.of(context)
+                    .popAndPushNamed(AppRoutes.home, arguments: 3);
               },
               tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
             );
@@ -30,12 +31,23 @@ class MyAppTest extends StatelessWidget {
         title: const Text(
           'Pagamento',
           style: TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(255, 153, 143, 0),
             fontSize: 30,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.blue,
+        iconTheme: const IconThemeData(color: Color.fromARGB(255, 153, 143, 0)),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(255, 239, 0, 1),
+                Color.fromRGBO(255, 255, 255, 1),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
         centerTitle: true,
       ),
       body: WebView(

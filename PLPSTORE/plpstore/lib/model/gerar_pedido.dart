@@ -21,6 +21,7 @@ class GerarPedido with ChangeNotifier {
   }
 
   Future<Map<String, String>> criarPreferencia(double price, String id_user, String id_venda) async {
+    print(id_user);
     String  idProduct = id_user + id_venda;
     const String url = 'https://plpstore.com.br/apiEmerson/preference.php';
     try {      

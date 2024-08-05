@@ -16,42 +16,53 @@ class BottomNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      onTap: (index) {
-        onTap(index);
-      },
-      items: <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: FaIcon(FontAwesomeIcons.house),
-          label: 'Home',
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).appBarTheme.backgroundColor!,
+            Theme.of(context).appBarTheme.foregroundColor!,
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
         ),
-        BottomNavigationBarItem(
-          icon: FaIcon(FontAwesomeIcons.grip),
-          label: 'Coleções',
-        ),
-        BottomNavigationBarItem(
-          icon: Badgee(
-            child: FaIcon(FontAwesomeIcons.cartShopping),
-            value: cartItemCount.toString(),
-            color: Color.fromRGBO(212, 133, 55, 1),
-          ),
-          label: 'Carrinho',
-        ),
-        BottomNavigationBarItem(
-          icon: FaIcon(FontAwesomeIcons.circleUser),
-          label: 'Perfil',
-        ),
-      ],
-      currentIndex: currentIndex,
-      elevation: 8.0,
-      showUnselectedLabels: true,
-      unselectedLabelStyle: const TextStyle(
-        color: Color.fromRGBO(217, 232, 255, 100),
       ),
-      backgroundColor: Color.fromRGBO(252, 246, 212, 0.698),
-      unselectedItemColor: Color.fromRGBO(212, 175, 55, 1),
-      selectedItemColor: Color.fromRGBO(101, 84, 26, 1),
-      type: BottomNavigationBarType.fixed,
+      child: BottomNavigationBar(
+        onTap: onTap,
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.house),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.grip),
+            label: 'Coleções',
+          ),
+          BottomNavigationBarItem(
+            icon: Badgee(
+              child: FaIcon(FontAwesomeIcons.cartShopping),
+              value: cartItemCount.toString(),
+              color: Color.fromRGBO(212, 133, 55, 1),
+            ),
+            label: 'Carrinho',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.circleUser),
+            label: 'Perfil',
+          ),
+        ],
+        currentIndex: currentIndex,
+        elevation: 0.0,
+        showUnselectedLabels: true,
+        unselectedLabelStyle: const TextStyle(
+          color: Color.fromRGBO(0, 0, 0, 1),
+        ),
+        backgroundColor: Colors.transparent,
+        unselectedItemColor: Color.fromARGB(255, 153, 143, 0),
+        selectedItemColor: Color.fromARGB(255, 89, 85, 0),
+        type: BottomNavigationBarType.fixed,
+      ),
     );
   }
 }

@@ -51,12 +51,12 @@ class Auth with ChangeNotifier {
       },
     );
     Map<String, dynamic> responseData = jsonDecode(response.body);
-    //deu errado
     if (responseData['code'] == 0) {
       code = responseData['code'];
       _mensagem = responseData['result'];
       return code;
     } else {
+
       code = responseData['code'];
       setUser(responseData['result']);
       return code;
@@ -68,6 +68,7 @@ class Auth with ChangeNotifier {
     iniciar.pegaClients(user['cpf']);
     _token = user['email'].toString();
     _level = user['nivel'].toString();
+    // _level = 'Admin';
     _email = user['email'].toString();
     _userId = user['id'].toString();
     _name = user['nome'].toString();

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
 import 'package:plpstore/model/cart.dart';
@@ -23,13 +24,7 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   final _formKey = GlobalKey<FormState>();
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  ValidarCpf validarCpf = ValidarCpf();
+  final ValidarCpf validarCpf = ValidarCpf();
   final List<String> envio = <String>['PAC', 'Sedex', 'Retirar no Local'];
   String? _tipoEnvio;
   double valorFrete = 0;
@@ -49,43 +44,36 @@ class _OrderPageState extends State<OrderPage> {
   final observacaoController = TextEditingController();
   final numeroController = TextEditingController();
 
-  void calcularValor() {
-    setState(() {
-      valorTotal = valorPedido + valorFrete;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
   }
 
-  late bool _isFirstTime;
-
   Future<void> _loadUserData() async {
-    final userProvider = Provider.of<Auth>(context, listen: false);
-    await Provider.of<GetCliente>(context, listen: false)
-        .pegaClients(userProvider.getCpf());
+    try {
+      final userProvider = Provider.of<Auth>(context, listen: false);
+      await Provider.of<GetCliente>(context, listen: false)
+          .pegaClients(userProvider.getCpf());
 
-    if (mounted) {
-      setState(() {
-        final cliente = Provider.of<GetCliente>(context, listen: false).cliente;
-        if (cliente != null) {
-          nomeController.text = (cliente.nome != 'null') ? cliente.nome : '';
-          cpfController.text = (cliente.cpf != 'null') ? cliente.cpf : '';
-          phoneController.text =
-              (cliente.telefone != '(') ? cliente.telefone : '';
-          emailController.text = (cliente.email != 'null') ? cliente.email : '';
-          ruaController.text = (cliente.rua != 'null') ? cliente.rua : '';
-          bairroController.text =
-              (cliente.bairro != 'null') ? cliente.bairro : '';
-          complementoController.text =
-              (cliente.complemento != 'null') ? cliente.complemento : '';
-          cidadeController.text =
-              (cliente.cidade != 'null') ? cliente.cidade : '';
-          estadoController.text =
-              (cliente.estado != 'null') ? cliente.estado : '';
-          cepController.text = (cliente.cep != 'null') ? cliente.cep : '';
-          numeroController.text =
-              (cliente.numero != 'null') ? cliente.numero : '';
-          _isFirstTime = cliente.fistTime;
-        }
-      });
+      final cliente = Provider.of<GetCliente>(context, listen: false).cliente;
+      if (cliente != null) {
+        setState(() {
+          nomeController.text = cliente.nome;
+          cpfController.text = cliente.cpf;
+          phoneController.text = cliente.telefone;
+          emailController.text = cliente.email;
+          ruaController.text = cliente.rua;
+          bairroController.text = cliente.bairro;
+          cidadeController.text = cliente.cidade;
+          estadoController.text = cliente.estado;
+          cepController.text = cliente.cep;
+          numeroController.text = cliente.numero;
+        });
+      }
+    } catch (e) {
+      // Handle error
+      print('Erro ao carregar dados do cliente: $e');
     }
   }
 
@@ -94,106 +82,149 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   String? _envioError;
-  void _finalizarPedido(BuildContext context) async {
+  bool _isLoading = false;
+  Future<void> _finalizarPedido(BuildContext context) async {
     setState(() {
       _envioError = _tipoEnvio == null ? 'Selecione um tipo de envio' : null;
     });
+
     if (!_formKey.currentState!.validate() || _tipoEnvio == null) {
       return;
     }
-    final userProvider = Provider.of<Auth>(context, listen: false);
-    final cart = Provider.of<Cart>(context, listen: false);
+    setState(() {
+      _isLoading = true;
+    });
 
-    final List<Map<String, dynamic>> produtos = cart.items.values.map((item) {
-      return {
-        'id_produto': item.productCod,
-        'quantidade': item.quantity,
-        'combo': item.combo,
+    try {
+      final userProvider = Provider.of<Auth>(context, listen: false);
+      final cart = Provider.of<Cart>(context, listen: false);
+
+      final List<Map<String, dynamic>> produtos = cart.items.values.map((item) {
+        return {
+          'id_produto': item.productCod,
+          'quantidade': item.quantity,
+          'combo': item.combo,
+        };
+      }).toList();
+
+      final random = Random();
+      final randomNumber = random.nextInt(1500);
+      final now = DateTime.now();
+      final dateFormat = DateFormat('dd-MM-yyyy-HH:mm:ss');
+      final sessao = '${dateFormat.format(now)}-$randomNumber';
+
+      final Map<String, dynamic> pedido = {
+        'id_user': userProvider.getUserId(),
+        'produtos': produtos,
+        'sessao': sessao,
+        'sub_total': valorPedido,
+        'frete': valorFrete,
+        'total': valorTotal,
+        'pgto_entrega': _tipoEnvio == 'Retirar no Local' ? 'Sim' : 'Não',
+        'tipo_frete': _tipoEnvio == 'Retirar no Local' ? '' : _tipoEnvio,
       };
-    }).toList();
-    final random = Random();
-    final randomNumber = random.nextInt(1500);
-    final now = DateTime.now();
-    final dateFormat = DateFormat('dd-MM-yyyy-HH:mm:ss');
-    final sessao = '${dateFormat.format(now)}-$randomNumber';
 
-    final Map<String, dynamic> pedido = {
-      'id_user': userProvider.getUserId(),
-      'produtos': produtos,
-      'sessao': sessao,
-      'sub_total': valorPedido,
-      'frete': valorFrete,
-      'total': valorTotal,
-      'pgto_entrega': _tipoEnvio == 'Retirar no Local' ? 'Sim' : 'Não',
-      'tipo_frete': _tipoEnvio == 'Retirar no Local' ? '' : _tipoEnvio,
-    };
+      final String pedidoJson = jsonEncode(pedido);
+      final gerarPedido = GerarPedido();
 
-    final String pedidoJson = jsonEncode(pedido);
-    final String response;
-    final Map<String, String> urlPayment;
-    GerarPedido gerarPedido = GerarPedido();
+      final response = await gerarPedido.gerarPedido(pedidoJson);
+      final int? saleId = int.tryParse(response);
 
-    if (_isFirstTime) {
-      // é a primeira vez
-      response = await gerarPedido.gerarPedido(pedidoJson);
-    } else {
-      // não é a primeira compra
-      response = await gerarPedido.gerarPedido(pedidoJson);
-    }
-    final int? saleId = int.tryParse(response);
-    if (saleId != null) {
-      urlPayment = await gerarPedido.criarPreferencia(
-          valorTotal, userProvider.getUserId(), saleId.toString());
-      if (urlPayment['id_payment'] != 'fail') {
-        await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
-        //gerarPedido.verificarpagamento(urlPayment['id_payment'].toString());
+      if (saleId != null) {
+        final urlPayment = await gerarPedido.criarPreferencia(
+            valorTotal, userProvider.getUserId(), saleId.toString());
+        if (urlPayment['id_payment'] != 'fail') {
+          await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
+        }
+        cart.clean();
       }
-      cart.clean();
+    } catch (e) {
+      print('Erro ao finalizar pedido: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    /* cartão de teste mercado pago:
-    n 5031 4332 1540 6351
-    cvv 123
-    validade 11/25
-    nome: APRO = aprovado
-          othe = recusado
-          cont = pendente
-     */
   }
 
   @override
   Widget build(BuildContext context) {
-    final cart = Provider.of<Cart>(context);
-    valorPedido = cart.totalAmount;
-    final items = cart.items.values.toList();
+    return Consumer<Cart>(
+      builder: (context, cart, child) {
+        valorPedido = cart.totalAmount;
+        final items = cart.items.values.toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft),
-          onPressed: () {
-            Navigator.of(context)
-                .popAndPushNamed(AppRoutes.home);
+        return Consumer<Auth>(
+          builder: (context, userProvider, child) {
+            return Consumer<GetCliente>(
+              builder: (context, clienteProvider, child) {
+                if (clienteProvider.cliente != null) {
+                  final cliente = clienteProvider.cliente!;
+                  nomeController.text = cliente.nome;
+                  cpfController.text = cliente.cpf;
+                  phoneController.text = cliente.telefone;
+                  emailController.text = cliente.email;
+                  ruaController.text = cliente.rua;
+                  bairroController.text = cliente.bairro;
+                  cidadeController.text = cliente.cidade;
+                  estadoController.text = cliente.estado;
+                  cepController.text = cliente.cep;
+                  numeroController.text = cliente.numero;
+                }
+
+                return Scaffold(
+                  appBar: AppBar(
+                    leading: IconButton(
+                      icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+                      onPressed: () {
+                        Navigator.of(context)
+                            .popAndPushNamed(AppRoutes.home, arguments: 2);
+                      },
+                    ),
+                    toolbarHeight: 80,
+                    title: const Text('Pedido',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 153, 143, 0),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30)),
+                    iconTheme: const IconThemeData(
+                        color: Color.fromARGB(255, 153, 143, 0)),
+                    flexibleSpace: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromRGBO(255, 239, 0, 1),
+                            Color.fromRGBO(255, 255, 255, 1)
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                    centerTitle: true,
+                  ),
+                  body: _isLoading
+                      ? Center(
+                          child: PokeballLoading(),
+                        )
+                      : LayoutBuilder(
+                          builder: (context, constraints) {
+                            return SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  _buildProductsCard(constraints, items),
+                                  _buildDeliveryInfoCard(context),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                );
+              },
+            );
           },
-        ),
-        toolbarHeight: 80,
-        title: const Text('Pedido', style: TextStyle(color: Colors.white)),
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Color.fromRGBO(212, 175, 55, 1),
-        centerTitle: true,
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildProductsCard(constraints, items),
-                _buildDeliveryInfoCard(context),
-              ],
-            ),
-          );
-        },
-      ),
+        );
+      },
     );
   }
 
@@ -204,19 +235,16 @@ class _OrderPageState extends State<OrderPage> {
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Center(
-                child: Text(
-                  'Produtos',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: Text('Produtos',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -250,11 +278,9 @@ class _OrderPageState extends State<OrderPage> {
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: Form(
             key: _formKey,
             child: Column(
@@ -274,22 +300,23 @@ class _OrderPageState extends State<OrderPage> {
                   return null;
                 }),
                 _buildDoubleTextField(
-                    cpfController,
-                    'CPF*',
-                    (value) {
-                      if (value!.isEmpty || value.trim().length < 11) {
-                        return 'CPF está inválido';
-                      }
-                      return null;
-                    },
-                    phoneController,
-                    'Telefone*',
-                    (value) {
-                      if (value!.isEmpty) {
-                        return 'Telefone é obrigatório!';
-                      }
-                      return null;
-                    }),
+                  cpfController,
+                  'CPF*',
+                  (value) {
+                    if (value!.isEmpty || !validarCpf.validarCPF(value)) {
+                      return 'CPF inválido';
+                    }
+                    return null;
+                  },
+                  phoneController,
+                  'Telefone*',
+                  (value) {
+                    if (value!.isEmpty) {
+                      return 'Telefone é obrigatório!';
+                    }
+                    return null;
+                  },
+                ),
                 _buildTextField(emailController, 'E-mail*', (value) {
                   if (value!.isEmpty || !value.contains('@')) {
                     return 'E-mail inválido';
@@ -297,22 +324,23 @@ class _OrderPageState extends State<OrderPage> {
                   return null;
                 }),
                 _buildDoubleTextField(
-                    cepController,
-                    'CEP*',
-                    (value) {
-                      if (value!.isEmpty) {
-                        return 'CEP é obrigatório!';
-                      }
-                      return null;
-                    },
-                    numeroController,
-                    'Número*',
-                    (value) {
-                      if (value!.isEmpty) {
-                        return 'Número é obrigatório!';
-                      }
-                      return null;
-                    }),
+                  cepController,
+                  'CEP*',
+                  (value) {
+                    if (value!.isEmpty) {
+                      return 'CEP é obrigatório!';
+                    }
+                    return null;
+                  },
+                  numeroController,
+                  'Número*',
+                  (value) {
+                    if (value!.isEmpty) {
+                      return 'Número é obrigatório!';
+                    }
+                    return null;
+                  },
+                ),
                 _buildTextField(ruaController, 'Rua*', (value) {
                   if (value!.isEmpty) {
                     return 'Rua é obrigatório';
@@ -389,11 +417,14 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget _buildTextField(TextEditingController controller, String labelText,
       String? Function(String?)? validator) {
-    return TextFormField(
-      validator: validator,
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: labelText,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        validator: validator,
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: labelText,
+        ),
       ),
     );
   }
@@ -405,43 +436,36 @@ class _OrderPageState extends State<OrderPage> {
       TextEditingController controller2,
       String labelText2,
       String? Function(String?)? validator2) {
-    return Row(
-      children: [
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: TextFormField(
-              controller: controller1,
-              validator: labelText1 != 'CPF*'
-                  ? validator1
-                  : (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Campo obrigatório';
-                      }
-                      if (!validarCpf.validarCPF(value)) {
-                        return 'CPF inválido';
-                      }
-                      return null;
-                    },
-              decoration: InputDecoration(
-                labelText: labelText1,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: TextFormField(
+                controller: controller1,
+                validator: validator1,
+                decoration: InputDecoration(
+                  labelText: labelText1,
+                ),
               ),
             ),
           ),
-        ),
-        Flexible(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: TextFormField(
-              controller: controller2,
-              validator: validator2,
-              decoration: InputDecoration(
-                labelText: labelText2,
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: TextFormField(
+                controller: controller2,
+                validator: validator2,
+                decoration: InputDecoration(
+                  labelText: labelText2,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -468,7 +492,7 @@ class _OrderPageState extends State<OrderPage> {
                     : _tipoEnvio == 'Sedex'
                         ? 30.0
                         : 0.0;
-                calcularValor();
+                valorTotal = valorPedido + valorFrete;
               });
             },
           ),

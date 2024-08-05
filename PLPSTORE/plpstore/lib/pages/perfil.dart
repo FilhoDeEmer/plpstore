@@ -47,24 +47,40 @@ class _PerfilPageState extends State<PerfilPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Erro ao carregar dados'));
           } else {
-            Cliente cliente = clienteProvider.cliente!;
-
+            Cliente? cliente = clienteProvider.cliente;
+            if (cliente == null) {
+              return Center(child: Text('Dados do cliente não encontrados'));
+            }
             return cliente.cpf.isEmpty
                 ? _buildLoginPrompt()
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 20),
-                          _buildStatsGrid(),
-                          const SizedBox(height: 20),
-                          _buildClientInfo(cliente),
-                          _buildAddressInfo(context, cliente),
-                          _buildLogoutButton(user, cart, cliente),
-                        ],
-                      ),
-                    ),
+                : FutureBuilder<List<dynamic>>(
+                    future: Provider.of<GetCliente>(context, listen: false)
+                        .pegarPedidos(user.getUserId()),
+                    builder: (context, pedidosSnapshot) {
+                      if (pedidosSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(child: PokeballLoading());
+                      } else if (pedidosSnapshot.hasError) {
+                        return Center(child: Text('Erro ao carregar pedidos'));
+                      } else {
+                        final pedidos = pedidosSnapshot.data ?? [];
+                        return SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                _buildStatsGrid(pedidos),
+                                const SizedBox(height: 20),
+                                _buildClientInfo(cliente),
+                                _buildAddressInfo(context, cliente),
+                                _buildLogoutButton(user, cart, cliente),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   );
           }
         },
@@ -94,56 +110,76 @@ class _PerfilPageState extends State<PerfilPage> {
     );
   }
 
-  Widget _buildStatsGrid() {
+  Widget _buildStatsGrid(List<dynamic> pedidos) {
+    // Contagem dos pedidos com base no campo 'pago'
+    final totalPedidos = pedidos.length.toString();
+    final pedidosPagos =
+        pedidos.where((pedido) => pedido['pago'] == 'Sim').length.toString();
+    final pedidosNaoPagos =
+        pedidos.where((pedido) => pedido['pago'] == 'Não').length.toString();
+
+    // Supondo que 'Aguardando Entrega' pode ser inferido por 'pgto_entrega'
+    final aguardandoEntrega = pedidos
+        .where((pedido) => pedido['pgto_entrega'] == 'Não')
+        .length
+        .toString();
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildGridItem('Total de Pedidos', '0', Colors.blue.shade900),
-        _buildGridItem('Pedidos Finalizados', '0', Colors.green.shade900),
-        _buildGridItem('Pedidos Pendentes', '0', Colors.red.shade900),
-        _buildGridItem('Aguardando Entrega', '0', Colors.amber.shade900),
+        _buildGridItem('Total de Pedidos', totalPedidos, Colors.blue.shade900),
+        _buildGridItem('Pedidos Pagos', pedidosPagos, Colors.green.shade900),
+        _buildGridItem(
+            'Pedidos Não Pagos', pedidosNaoPagos, Colors.red.shade900),
+        _buildGridItem(
+            'Aguardando Entrega', aguardandoEntrega, Colors.amber.shade900),
       ],
     );
   }
 
   Widget _buildGridItem(String label, String value, Color color) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.2),
-              offset: const Offset(0, 3),
-              blurRadius: 5,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontWeight: FontWeight.bold, color: color),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushNamed(AppRoutes.orderDetail);
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                offset: const Offset(0, 3),
+                blurRadius: 5,
+                spreadRadius: 2,
               ),
             ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: color),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -247,8 +283,16 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   void editInfo(BuildContext context, Cliente cliente) {
-    final phoneController = MaskedTextController(mask: '(00) 00000-0000');
-    final cepController = MaskedTextController(mask: '00000-000');
+    // Controladores para os campos do formulário
+    final phoneController = MaskedTextController(
+        mask: '(00) 00000-0000',
+        text: cliente.telefone.isNotEmpty && cliente.telefone != 'null'
+            ? cliente.telefone
+            : '');
+    final cepController = MaskedTextController(
+        mask: '00000-000',
+        text:
+            cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : '');
     final ruaController = TextEditingController(
         text:
             cliente.rua.isNotEmpty && cliente.rua != 'null' ? cliente.rua : '');
@@ -268,12 +312,6 @@ class _PerfilPageState extends State<PerfilPage> {
         text: cliente.bairro.isNotEmpty && cliente.bairro != 'null'
             ? cliente.bairro
             : '');
-    cepController.text =
-        cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : '';
-    phoneController.text =
-        cliente.telefone.isNotEmpty && cliente.telefone != 'null'
-            ? cliente.telefone
-            : '';
 
     showDialog(
       context: context,
@@ -284,62 +322,93 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  controller: phoneController,
-                  decoration: const InputDecoration(labelText: 'Telefone'),
-                ),
-                TextFormField(
-                  controller: ruaController,
-                  decoration: const InputDecoration(labelText: 'Rua'),
-                ),
-                TextFormField(
-                  controller: bairroController,
-                  decoration: const InputDecoration(labelText: 'Bairro'),
-                ),
-                TextFormField(
-                  controller: cidadeController,
-                  decoration: const InputDecoration(labelText: 'Cidade'),
-                ),
-                TextFormField(
-                  controller: numeroController,
-                  decoration: const InputDecoration(labelText: 'Número'),
-                ),
-                TextFormField(
-                  controller: estadoController,
-                  decoration: const InputDecoration(labelText: 'Estado'),
-                ),
-                TextFormField(
-                  controller: cepController,
-                  decoration: const InputDecoration(labelText: 'CEP'),
-                ),
+                _buildTextField(phoneController, 'Telefone'),
+                _buildTextField(ruaController, 'Rua'),
+                _buildTextField(bairroController, 'Bairro'),
+                _buildTextField(cidadeController, 'Cidade'),
+                _buildTextField(numeroController, 'Número'),
+                _buildTextField(estadoController, 'Estado'),
+                _buildTextField(cepController, 'CEP'),
               ],
             ),
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                cliente.atualizarEndereco(
-                  telefone: phoneController.text,
-                  rua: ruaController.text,
-                  cidade: cidadeController.text,
-                  numero: numeroController.text,
-                  estado: estadoController.text,
-                  cep: cepController.text,
-                  bairro: bairroController.text,
-                );
-                Provider.of<GetCliente>(context, listen: false)
-                    .atualizarCliente(cliente);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Salvar'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    if (_validateFields(
+                      phoneController.text,
+                      ruaController.text,
+                      bairroController.text,
+                      cidadeController.text,
+                      numeroController.text,
+                      estadoController.text,
+                      cepController.text,
+                    )) {
+                      cliente.atualizarEndereco(
+                        telefone: phoneController.text,
+                        rua: ruaController.text,
+                        cidade: cidadeController.text,
+                        numero: numeroController.text,
+                        estado: estadoController.text,
+                        cep: cepController.text,
+                        bairro: bairroController.text,
+                      );
+                      Provider.of<GetCliente>(context, listen: false)
+                          .atualizarCliente(cliente);
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Por favor, preencha todos os campos corretamente.',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Salvar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancelar'),
+                ),
+              ],
             ),
           ],
         );
       },
     );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String labelText) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(labelText: labelText),
+      ),
+    );
+  }
+
+  bool _validateFields(
+    String telefone,
+    String rua,
+    String bairro,
+    String cidade,
+    String numero,
+    String estado,
+    String cep,
+  ) {
+    // Adicione sua lógica de validação aqui. Exemplo simples:
+    return telefone.isNotEmpty &&
+        rua.isNotEmpty &&
+        bairro.isNotEmpty &&
+        cidade.isNotEmpty &&
+        numero.isNotEmpty &&
+        estado.isNotEmpty &&
+        cep.isNotEmpty;
   }
 }

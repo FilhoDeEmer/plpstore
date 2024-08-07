@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plpstore/components/bottom_navigator.dart';
+import 'package:plpstore/model/calculadora_frete.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/product.dart';
 import 'package:plpstore/utils/app_routes.dart';
@@ -17,7 +18,7 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail> {
   final cepController = MaskedTextController(mask: '00000-000');
-  String? frete = 'SEDEX';
+  String frete = 'SEDEX';
   final List<String> list = ['SEDEX', 'PAC'];
   double valorFrete = 0;
   int index = 0;
@@ -27,11 +28,18 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     final cart = Provider.of<Cart>(context, listen: false);
+    CalculadoraFrete calculadoraFrete = CalculadoraFrete();
+
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.data.nome, style: const TextStyle(color: Color.fromARGB(255, 153, 143, 0))),
-        iconTheme: const IconThemeData(color: Color.fromARGB(255, 153, 143, 0)),
+        title: Text(
+          widget.data.nome,
+          style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+              fontSize: 20,
+              fontWeight: FontWeight.bold),
+        ),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.tertiary),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -108,7 +116,8 @@ class _ProductDetailState extends State<ProductDetail> {
                               onPressed: () {
                                 if (widget.data.estoque == addCar) {
                                   messageFail(context);
-                                } else if (int.parse(widget.data.estoque) <= 0) {
+                                } else if (int.parse(widget.data.estoque) <=
+                                    0) {
                                   messageFail(context);
                                 } else {
                                   cart.addItemMax(widget.data, addCar);
@@ -139,7 +148,7 @@ class _ProductDetailState extends State<ProductDetail> {
                     if (int.parse(widget.data.estoque) != 0)
                       Container(
                         padding: const EdgeInsets.all(10),
-                        height: 70,
+                        height: 80,
                         width: deviceSize.width * 0.80,
                         child: Row(
                           children: [
@@ -190,11 +199,19 @@ class _ProductDetailState extends State<ProductDetail> {
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
                           child: const Text('Calcular'),
-                          onPressed: () {
-                            setState(() {
-                              valorFrete =
-                                  22.00; // aqui vai a calculo do frete pela api do correios
-                            });
+                          onPressed: () async {
+                            try {
+                              final valor =
+                                  await calculadoraFrete.calcularFrete(
+                                      cepController.text,
+                                      widget.data.valor,
+                                      frete);
+                              setState(() {
+                                valorFrete = valor;
+                              });
+                            } catch (e) {
+                              print('Erro ao calcular frete: $e');
+                            }
                           },
                         ),
                       ),
@@ -282,20 +299,16 @@ class _ProductDetailState extends State<ProductDetail> {
   void _navigateToPage(int index, BuildContext context) {
     switch (index) {
       case 0:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 1:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 2:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 3:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
     }
   }

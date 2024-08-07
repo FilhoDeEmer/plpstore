@@ -13,7 +13,6 @@ class MyAppTest extends StatelessWidget {
     // Verifique se a URL é nula ou vazia
     final String initialUrl =
         ModalRoute.of(context)?.settings.arguments as String;
-    print(initialUrl);
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
@@ -37,11 +36,11 @@ class MyAppTest extends StatelessWidget {
         ),
         iconTheme: const IconThemeData(color: Color.fromARGB(255, 153, 143, 0)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color.fromRGBO(255, 239, 0, 1),
-                Color.fromRGBO(255, 255, 255, 1),
+                Theme.of(context).appBarTheme.backgroundColor!,
+                Theme.of(context).appBarTheme.foregroundColor!,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,

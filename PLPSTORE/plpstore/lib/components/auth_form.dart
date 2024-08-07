@@ -351,13 +351,11 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 50,
+                    height: 56,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -365,23 +363,27 @@ class _AuthFormState extends State<AuthForm> {
                             horizontal: 30, vertical: 8),
                       ),
                       child: Text(
-                        _isLogin() ? 'LOGIN' : 'REGISTRAR',
-                        style: const TextStyle(color: Colors.white),
+                        _isLogin() ? 'ENTRAR' : 'REGISTRAR',
                       ),
                     ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: _passwordRecover,
+                        child: Text('Recuperar Senha?',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            )),
+                      ),
+                    ],
                   ),
                   TextButton(
                     onPressed: _switchAuthMode,
                     child: Text(_isLogin() ? 'CADASTRAR' : 'LOGIN',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                        )),
-                  ),
-                  TextButton(
-                    onPressed: _passwordRecover,
-                    child: Text('Recuperar Senha?',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
+                        style: TextStyle(                         
+                          color: Theme.of(context).colorScheme.error,
                         )),
                   ),
                 ],
@@ -414,19 +416,6 @@ class _AuthFormState extends State<AuthForm> {
           contentPadding:
               const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Color.fromARGB(255, 0, 255, 21)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color.fromRGBO(0, 0, 0, 1)),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: const Color.fromARGB(255, 255, 0, 0)),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: const Color.fromARGB(255, 255, 0, 0)),
             borderRadius: BorderRadius.circular(12),
           ),
           suffixIcon: suffixIcon,

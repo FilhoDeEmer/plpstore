@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
-            seedColor: Color.fromARGB(255, 165, 143, 43), // Cor principal
+            seedColor: Color.fromRGBO(165, 143, 43, 1), // Cor principal
             primary: Color.fromRGBO(255, 238, 6, 1), // Cor principal
             secondary: Color.fromARGB(255, 248, 147, 31), // Cor secundária
             background: Color.fromARGB(255, 255, 255, 255), // Cor de fundo
@@ -53,7 +53,14 @@ class MyApp extends StatelessWidget {
             onSecondary: Colors.black, // Cor do texto sobre a cor secundária
             onBackground: Colors.black, // Cor do texto sobre o fundo
             onSurface: Colors.black, // Cor do texto sobre a superfície
-            error: Colors.redAccent, // Cor para erros
+            error: Colors.redAccent,
+            tertiary: Color.fromRGBO(165, 143, 43, 1), // Cor para erros
+          ),
+          checkboxTheme: CheckboxThemeData(
+            checkColor: MaterialStateProperty.all(
+              Color.fromRGBO(255, 239, 0, 1),
+            ),
+            fillColor: MaterialStateProperty.all(Colors.black),
           ),
           appBarTheme: AppBarTheme(
             backgroundColor: Color.fromRGBO(255, 239, 0, 1),
@@ -72,7 +79,7 @@ class MyApp extends StatelessWidget {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color.fromARGB(255, 0, 0, 0),
+              backgroundColor: Color.fromRGBO(0, 0, 0, 1),
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),

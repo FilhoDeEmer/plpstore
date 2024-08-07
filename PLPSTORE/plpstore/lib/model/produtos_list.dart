@@ -13,8 +13,7 @@ class Produtos with ChangeNotifier {
     final responseData = jsonDecode(response.body);
     Map<String, dynamic> total = await responseData['result'];
     cont = total.length;
-    // print(cont.toString());
-    // print(colectionList);
+
     return total;
   }
   

@@ -58,7 +58,6 @@ class GetCliente with ChangeNotifier {
     final response =
         await http.post(Uri.parse(url), body: {'idUsuario': idUser});
     final responseData = jsonDecode(response.body);
-    print(responseData);
     if (responseData['code'] == 1) {
       notifyListeners();
     } else {

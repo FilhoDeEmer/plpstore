@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/components/validar_cpf.dart';
 import 'package:plpstore/model/auth.dart';
+import 'package:plpstore/model/calculadora_frete.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/cart_item.dart';
 import 'package:plpstore/model/gerar_pedido.dart';
@@ -25,11 +26,12 @@ class OrderPage extends StatefulWidget {
 class _OrderPageState extends State<OrderPage> {
   final _formKey = GlobalKey<FormState>();
   final ValidarCpf validarCpf = ValidarCpf();
-  final List<String> envio = <String>['PAC', 'Sedex', 'Retirar no Local'];
+  final List<String> envio = <String>['PAC', 'SEDEX', 'Retirar no Local'];
   String? _tipoEnvio;
   double valorFrete = 0;
   double valorTotal = 0;
   double valorPedido = 0;
+  CalculadoraFrete calculadoraFrete = CalculadoraFrete();
 
   final cpfController = MaskedTextController(mask: '000.000.000-00');
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
@@ -40,7 +42,6 @@ class _OrderPageState extends State<OrderPage> {
   final bairroController = TextEditingController();
   final complementoController = TextEditingController();
   final cidadeController = TextEditingController();
-  final estadoController = TextEditingController();
   final observacaoController = TextEditingController();
   final numeroController = TextEditingController();
 
@@ -50,6 +51,7 @@ class _OrderPageState extends State<OrderPage> {
     _loadUserData();
   }
 
+  bool erro = false;
   Future<void> _loadUserData() async {
     try {
       final userProvider = Provider.of<Auth>(context, listen: false);
@@ -66,7 +68,7 @@ class _OrderPageState extends State<OrderPage> {
           ruaController.text = cliente.rua;
           bairroController.text = cliente.bairro;
           cidadeController.text = cliente.cidade;
-          estadoController.text = cliente.estado;
+          _selectedState = cliente.estado;
           cepController.text = cliente.cep;
           numeroController.text = cliente.numero;
         });
@@ -81,6 +83,37 @@ class _OrderPageState extends State<OrderPage> {
     Navigator.of(context).popAndPushNamed(AppRoutes.checkout, arguments: url);
   }
 
+  String? _selectedState;
+  final List<String> _states = [
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO'
+  ];
+
   String? _envioError;
   bool _isLoading = false;
   Future<void> _finalizarPedido(BuildContext context) async {
@@ -89,6 +122,7 @@ class _OrderPageState extends State<OrderPage> {
     });
 
     if (!_formKey.currentState!.validate() || _tipoEnvio == null) {
+      erro = true;
       return;
     }
     setState(() {
@@ -134,7 +168,8 @@ class _OrderPageState extends State<OrderPage> {
         final urlPayment = await gerarPedido.criarPreferencia(
             valorTotal, userProvider.getUserId(), saleId.toString());
         if (urlPayment['id_payment'] != 'fail') {
-          await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
+          await _launchInWebViewWithoutDomStorage(
+              urlPayment['test_init_point']!);
         }
         cart.clean();
       }
@@ -156,71 +191,53 @@ class _OrderPageState extends State<OrderPage> {
 
         return Consumer<Auth>(
           builder: (context, userProvider, child) {
-            return Consumer<GetCliente>(
-              builder: (context, clienteProvider, child) {
-                if (clienteProvider.cliente != null) {
-                  final cliente = clienteProvider.cliente!;
-                  nomeController.text = cliente.nome;
-                  cpfController.text = cliente.cpf;
-                  phoneController.text = cliente.telefone;
-                  emailController.text = cliente.email;
-                  ruaController.text = cliente.rua;
-                  bairroController.text = cliente.bairro;
-                  cidadeController.text = cliente.cidade;
-                  estadoController.text = cliente.estado;
-                  cepController.text = cliente.cep;
-                  numeroController.text = cliente.numero;
-                }
-
-                return Scaffold(
-                  appBar: AppBar(
-                    leading: IconButton(
-                      icon: const FaIcon(FontAwesomeIcons.arrowLeft),
-                      onPressed: () {
-                        Navigator.of(context)
-                            .popAndPushNamed(AppRoutes.home, arguments: 2);
+            return Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .popAndPushNamed(AppRoutes.home, arguments: 2);
+                  },
+                ),
+                iconTheme: IconThemeData(
+                    color: Theme.of(context).colorScheme.tertiary),
+                toolbarHeight: 80,
+                title: Text('Pedido',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30)),
+                flexibleSpace: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).appBarTheme.backgroundColor!,
+                        Theme.of(context).appBarTheme.foregroundColor!,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+                centerTitle: true,
+              ),
+              body: _isLoading
+                  ? Center(
+                      child: PokeballLoading(),
+                    )
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              _buildProductsCard(constraints, items),
+                              _buildDeliveryInfoCard(context),
+                            ],
+                          ),
+                        );
                       },
                     ),
-                    toolbarHeight: 80,
-                    title: const Text('Pedido',
-                        style: TextStyle(
-                            color: Color.fromARGB(255, 153, 143, 0),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30)),
-                    iconTheme: const IconThemeData(
-                        color: Color.fromARGB(255, 153, 143, 0)),
-                    flexibleSpace: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color.fromRGBO(255, 239, 0, 1),
-                            Color.fromRGBO(255, 255, 255, 1)
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                    centerTitle: true,
-                  ),
-                  body: _isLoading
-                      ? Center(
-                          child: PokeballLoading(),
-                        )
-                      : LayoutBuilder(
-                          builder: (context, constraints) {
-                            return SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  _buildProductsCard(constraints, items),
-                                  _buildDeliveryInfoCard(context),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                );
-              },
             );
           },
         );
@@ -235,34 +252,45 @@ class _OrderPageState extends State<OrderPage> {
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(
-                child: Text('Produtos',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text('Produtos',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.tertiary)),
+                ),
               ),
               Expanded(
                 child: ListView.builder(
                   itemCount: items.length,
                   itemBuilder: (ctx, i) {
+                    final item = items[i];
                     return ListTile(
-                      title: Text(items[i].name),
-                      leading: Text('${items[i].quantity}x'),
-                      trailing: Text(items[i].price.toStringAsFixed(2)),
+                      title: Text(item.name),
+                      leading: Text('${item.quantity}x'),
+                      trailing: Text(item.price.toStringAsFixed(2)),
                     );
                   },
                 ),
               ),
-              FittedBox(
-                fit: BoxFit.cover,
-                child: Text(
-                  'Pedido: ${valorPedido.toStringAsFixed(2)} Frete: ${valorFrete.toStringAsFixed(2)} Total: ${valorTotal.toStringAsFixed(2)}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    'Total: R\$ ${valorPedido.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -278,7 +306,7 @@ class _OrderPageState extends State<OrderPage> {
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Form(
@@ -286,13 +314,17 @@ class _OrderPageState extends State<OrderPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
+                Center(
                   child: Text(
                     'Informações de Entrega',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.tertiary),
                     textAlign: TextAlign.center,
                   ),
                 ),
+                const SizedBox(height: 8),
                 _buildTextField(nomeController, 'Nome Completo*', (value) {
                   if (value!.isEmpty || value.length < 5) {
                     return 'Nome é Obrigatório';
@@ -356,32 +388,53 @@ class _OrderPageState extends State<OrderPage> {
                 _buildTextField(complementoController, 'Complemento', (value) {
                   return null;
                 }),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Estado',
+                    ),
+                    value: _selectedState,
+                    hint: Text('UF*'),
+                    isDense: true,
+                    menuMaxHeight: 300,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedState = newValue;
+                      });
+                    },
+                    items: _states.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Selecione o estado';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
                 _buildTextField(cidadeController, 'Cidade*', (value) {
                   if (value!.isEmpty) {
                     return 'Cidade é obrigatório';
                   }
                   return null;
                 }),
-                _buildTextField(estadoController, 'Estado*', (value) {
-                  if (value!.isEmpty) {
-                    return 'Estado é obrigatório';
-                  }
-                  return null;
-                }),
                 _buildTextField(observacaoController, 'Observações', (value) {
                   return null;
                 }),
-                _buildShippingDropdown(),
-                if (_envioError != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      _envioError!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
+                _buildShippingDropdown(valorTotal.toString()),
                 Text('Valor do frete: ${valorFrete.toStringAsFixed(2)}'),
                 Text('Valor Total: ${valorTotal.toStringAsFixed(2)}'),
+                if (erro)
+                  Text(
+                    'Campo obrigatório*',
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
@@ -469,35 +522,52 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildShippingDropdown() {
-    return Row(
-      children: [
-        const Text('Frete:'),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: DropdownButton<String>(
-            hint: const Text('Selecione o tipo de envio'),
-            value: _tipoEnvio,
-            items: envio.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item),
-              );
-            }).toList(),
-            onChanged: (String? novoValor) {
-              setState(() {
-                _tipoEnvio = novoValor;
-                valorFrete = _tipoEnvio == 'PAC'
-                    ? 22.0
-                    : _tipoEnvio == 'Sedex'
-                        ? 30.0
-                        : 0.0;
-                valorTotal = valorPedido + valorFrete;
-              });
-            },
+  Widget _buildShippingDropdown(String valorTotal) {
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            labelText: 'Tipo de Envio',
+            errorText: _envioError, // Exibe mensagem de erro, se houver
           ),
+          hint: const Text('Selecione o tipo de envio'),
+          value: _tipoEnvio,
+          items: envio.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          onChanged: (String? newValue) async {
+            if (newValue != null) {
+              setState(() {
+                _tipoEnvio = newValue;
+              });
+
+              try {
+                final valor = await calculadoraFrete.calcularFrete(
+                  cepController.text,
+                  valorTotal.toString(),
+                  _tipoEnvio!, // Use o valor selecionado
+                );
+                setState(() {
+                  valorFrete = valor;
+                });
+              } catch (e) {
+                //print('Erro ao calcular frete: $e');
+                setState(() {
+                  valorFrete = 0.0; // Defina um valor padrão ou trate o erro adequadamente
+                  _envioError = 'Não foi possível calcular o frete'; // Exiba mensagem de erro se necessário
+                });
+              }
+            }
+          },
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

@@ -30,8 +30,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
         leading: IconButton(
           icon: FaIcon(FontAwesomeIcons.arrowLeft),
           onPressed: () {
-            Navigator.of(context)
-                .popAndPushNamed(AppRoutes.home, arguments: 1);
+            Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: 1);
           },
         ),
         title: FittedBox(
@@ -42,9 +41,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
             ),
           ),
         ),
-        iconTheme: IconThemeData(
-          color: Theme.of(context).appBarTheme.foregroundColor!,
-        ),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.tertiary),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -78,20 +75,16 @@ class _ProductGridPageState extends State<ProductGridPage> {
   void _navigateToPage(int index, BuildContext context) {
     switch (index) {
       case 0:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 1:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 2:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
       case 3:
-        Navigator.of(context)
-            .popAndPushNamed(AppRoutes.home, arguments: index);
+        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
         break;
     }
   }

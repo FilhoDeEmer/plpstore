@@ -31,6 +31,11 @@ class _PerfilPageState extends State<PerfilPage> {
         .pegaClients(userProvider.getCpf());
   }
 
+  final List<String> _states = [
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+    'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+  ];
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<Auth>(context);
@@ -43,7 +48,7 @@ class _PerfilPageState extends State<PerfilPage> {
         future: _userDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: PokeballLoading());
+            return Center(child: PokeballLoading()); // Indicador de carregamento para dados do usuário
           } else if (snapshot.hasError) {
             return Center(child: Text('Erro ao carregar dados'));
           } else {
@@ -59,7 +64,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     builder: (context, pedidosSnapshot) {
                       if (pedidosSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Center(child: PokeballLoading());
+                        return Center(child: PokeballLoading()); // Indicador de carregamento para pedidos
                       } else if (pedidosSnapshot.hasError) {
                         return Center(child: Text('Erro ao carregar pedidos'));
                       } else {
@@ -70,10 +75,10 @@ class _PerfilPageState extends State<PerfilPage> {
                             child: Column(
                               children: [
                                 const SizedBox(height: 20),
-                                _buildStatsGrid(pedidos),
-                                const SizedBox(height: 20),
                                 _buildClientInfo(cliente),
                                 _buildAddressInfo(context, cliente),
+                                const SizedBox(height: 20),
+                                _buildStatsGrid(pedidos),
                                 _buildLogoutButton(user, cart, cliente),
                               ],
                             ),
@@ -100,9 +105,10 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Text(
               'Entre ou Cadastre-se',
               style: TextStyle(
-                  color: Color.fromRGBO(192, 148, 2, 1),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20),
+                color: Color.fromRGBO(192, 148, 2, 1),
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
           ),
         ],
@@ -111,14 +117,12 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   Widget _buildStatsGrid(List<dynamic> pedidos) {
-    // Contagem dos pedidos com base no campo 'pago'
     final totalPedidos = pedidos.length.toString();
     final pedidosPagos =
         pedidos.where((pedido) => pedido['pago'] == 'Sim').length.toString();
     final pedidosNaoPagos =
         pedidos.where((pedido) => pedido['pago'] == 'Não').length.toString();
 
-    // Supondo que 'Aguardando Entrega' pode ser inferido por 'pgto_entrega'
     final aguardandoEntrega = pedidos
         .where((pedido) => pedido['pgto_entrega'] == 'Não')
         .length
@@ -129,20 +133,24 @@ class _PerfilPageState extends State<PerfilPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildGridItem('Total de Pedidos', totalPedidos, Colors.blue.shade900),
-        _buildGridItem('Pedidos Pagos', pedidosPagos, Colors.green.shade900),
         _buildGridItem(
-            'Pedidos Não Pagos', pedidosNaoPagos, Colors.red.shade900),
+            'Total de Pedidos', totalPedidos, Colors.blue.shade900, pedidos),
         _buildGridItem(
-            'Aguardando Entrega', aguardandoEntrega, Colors.amber.shade900),
+            'Pedidos Pagos', pedidosPagos, Colors.green.shade900, pedidos),
+        _buildGridItem(
+            'Pedidos Não Pagos', pedidosNaoPagos, Colors.red.shade900, pedidos),
+        _buildGridItem('Aguardando Entrega', aguardandoEntrega,
+            Colors.amber.shade900, pedidos),
       ],
     );
   }
 
-  Widget _buildGridItem(String label, String value, Color color) {
+  Widget _buildGridItem(
+      String label, String value, Color color, List<dynamic> pedidos) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).pushNamed(AppRoutes.orderDetail);
+        Navigator.of(context)
+            .pushNamed(AppRoutes.orderDetail, arguments: pedidos);
       },
       child: Card(
         elevation: 4,
@@ -283,35 +291,41 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   void editInfo(BuildContext context, Cliente cliente) {
-    // Controladores para os campos do formulário
     final phoneController = MaskedTextController(
-        mask: '(00) 00000-0000',
-        text: cliente.telefone.isNotEmpty && cliente.telefone != 'null'
-            ? cliente.telefone
-            : '');
+      mask: '(00) 00000-0000',
+      text: cliente.telefone.isNotEmpty && cliente.telefone != 'null'
+          ? cliente.telefone
+          : '',
+    );
     final cepController = MaskedTextController(
-        mask: '00000-000',
-        text:
-            cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : '');
-    final ruaController = TextEditingController(
-        text:
-            cliente.rua.isNotEmpty && cliente.rua != 'null' ? cliente.rua : '');
-    final cidadeController = TextEditingController(
-        text: cliente.cidade.isNotEmpty && cliente.cidade != 'null'
-            ? cliente.cidade
-            : '');
-    final numeroController = TextEditingController(
-        text: cliente.numero.isNotEmpty && cliente.numero != 'null'
-            ? cliente.numero
-            : '');
-    final estadoController = TextEditingController(
-        text: cliente.estado.isNotEmpty && cliente.estado != 'null'
-            ? cliente.estado
-            : '');
-    final bairroController = TextEditingController(
-        text: cliente.bairro.isNotEmpty && cliente.bairro != 'null'
-            ? cliente.bairro
-            : '');
+      mask: '00000-000',
+      text: cliente.cep.isNotEmpty && cliente.cep != 'null' ? cliente.cep : '',
+    );
+
+    final controllers = {
+      'telefone': phoneController,
+      'rua': TextEditingController(
+          text: cliente.rua.isNotEmpty && cliente.rua != 'null'
+              ? cliente.rua
+              : ''),
+      'bairro': TextEditingController(
+          text: cliente.bairro.isNotEmpty && cliente.bairro != 'null'
+              ? cliente.bairro
+              : ''),
+      'cidade': TextEditingController(
+          text: cliente.cidade.isNotEmpty && cliente.cidade != 'null'
+              ? cliente.cidade
+              : ''),
+      'numero': TextEditingController(
+          text: cliente.numero.isNotEmpty && cliente.numero != 'null'
+              ? cliente.numero
+              : ''),
+      'estado': TextEditingController(
+          text: cliente.estado.isNotEmpty && cliente.estado != 'null'
+              ? cliente.estado
+              : ''),
+      'cep': cepController,
+    };
 
     showDialog(
       context: context,
@@ -322,13 +336,8 @@ class _PerfilPageState extends State<PerfilPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField(phoneController, 'Telefone'),
-                _buildTextField(ruaController, 'Rua'),
-                _buildTextField(bairroController, 'Bairro'),
-                _buildTextField(cidadeController, 'Cidade'),
-                _buildTextField(numeroController, 'Número'),
-                _buildTextField(estadoController, 'Estado'),
-                _buildTextField(cepController, 'CEP'),
+                ..._buildFormFields(controllers),
+                _buildStateDropdown(controllers['estado']!),
               ],
             ),
           ),
@@ -338,23 +347,15 @@ class _PerfilPageState extends State<PerfilPage> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    if (_validateFields(
-                      phoneController.text,
-                      ruaController.text,
-                      bairroController.text,
-                      cidadeController.text,
-                      numeroController.text,
-                      estadoController.text,
-                      cepController.text,
-                    )) {
+                    if (_validateFields(controllers)) {
                       cliente.atualizarEndereco(
-                        telefone: phoneController.text,
-                        rua: ruaController.text,
-                        cidade: cidadeController.text,
-                        numero: numeroController.text,
-                        estado: estadoController.text,
-                        cep: cepController.text,
-                        bairro: bairroController.text,
+                        telefone: controllers['telefone']!.text,
+                        rua: controllers['rua']!.text,
+                        cidade: controllers['cidade']!.text,
+                        numero: controllers['numero']!.text,
+                        estado: controllers['estado']!.text,
+                        cep: controllers['cep']!.text,
+                        bairro: controllers['bairro']!.text,
                       );
                       Provider.of<GetCliente>(context, listen: false)
                           .atualizarCliente(cliente);
@@ -363,8 +364,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                            'Por favor, preencha todos os campos corretamente.',
-                          ),
+                              'Por favor, preencha todos os campos corretamente.'),
                         ),
                       );
                     }
@@ -383,32 +383,46 @@ class _PerfilPageState extends State<PerfilPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText) {
+  List<Widget> _buildFormFields(
+      Map<String, TextEditingController> controllers) {
+    return controllers.entries
+        .where((entry) => entry.key != 'estado')
+        .map((entry) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextFormField(
+          controller: entry.value,
+          decoration: InputDecoration(labelText: entry.key),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildStateDropdown(TextEditingController estadoController) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(labelText: labelText),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: 'Estado',
+        ),
+        value: estadoController.text,
+        hint: Text('UF*'),
+        isDense: true,
+        menuMaxHeight: 300,
+        onChanged: (String? newValue) {
+          estadoController.text = newValue!;
+        },
+        items: _states.map((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
       ),
     );
   }
 
-  bool _validateFields(
-    String telefone,
-    String rua,
-    String bairro,
-    String cidade,
-    String numero,
-    String estado,
-    String cep,
-  ) {
-    // Adicione sua lógica de validação aqui. Exemplo simples:
-    return telefone.isNotEmpty &&
-        rua.isNotEmpty &&
-        bairro.isNotEmpty &&
-        cidade.isNotEmpty &&
-        numero.isNotEmpty &&
-        estado.isNotEmpty &&
-        cep.isNotEmpty;
+  bool _validateFields(Map<String, TextEditingController> controllers) {
+    return controllers.values.every((controller) => controller.text.isNotEmpty);
   }
 }

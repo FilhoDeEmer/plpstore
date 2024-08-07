@@ -47,8 +47,8 @@ class LoginPage extends StatelessWidget {
                         Navigator.of(context).popAndPushNamed(AppRoutes.home);
                       },
                       child: Text(
-                        'Acessar a Loja',
-                        style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                        'Ir à loja',
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                     ),
                     _buildContactRow(

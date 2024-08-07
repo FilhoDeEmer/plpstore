@@ -87,7 +87,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                       AppRoutes.colection,
                                       arguments: page);
                                 },
-                                child: const Text('Saiba mais!',  style: TextStyle(color: Color.fromRGBO(212, 175, 55, 1))),
+                                child: const Text('Ver coleção'),
                               ),
                             ),
                           )
@@ -137,19 +137,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                             child: Image.asset(
                               imgUrl,
                               fit: BoxFit.scaleDown,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          left: 0,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              child: const Text('Saiba mais!', style: TextStyle(color: Color.fromRGBO(212, 175, 55, 1)),),
                             ),
                           ),
                         ),
@@ -207,19 +194,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text('Saiba mais!', style: TextStyle(color: Color.fromRGBO(212, 175, 55, 1))),
-                                  ),
-                                ),
-                              ),
                             ],
                           );
                         },
@@ -257,19 +231,6 @@ class _PrincipalPageState extends State<PrincipalPage> {
                                   child: Image.asset(
                                     imgUrl,
                                     fit: BoxFit.scaleDown,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text('Saiba mais!', style: TextStyle(color: Color.fromRGBO(212, 175, 55, 1))),
                                   ),
                                 ),
                               ),

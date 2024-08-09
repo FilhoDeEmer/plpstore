@@ -21,7 +21,9 @@ class AuthForm extends StatefulWidget {
 class _AuthFormState extends State<AuthForm> {
   ValidarCpf validarCpf = ValidarCpf();
   final _passwordController = TextEditingController();
+  final _fCpfController = MaskedTextController(mask: '000.000.000-00');
   final _emailController = TextEditingController();
+  final _fEmailController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
   final _cpfController = MaskedTextController(mask: '000.000.000-00');
@@ -138,8 +140,9 @@ class _AuthFormState extends State<AuthForm> {
     }
   }
 
-  void _sendPasswordEmail(String email) {
-    // Implementar a lógica para enviar um e-mail de recuperação de senha
+  void _sendPasswordEmail(String email, String cpf) {
+    Auth verificar = Auth();
+    verificar.recuperarSenha(email, cpf);
   }
 
   void _passwordRecover() {
@@ -153,6 +156,7 @@ class _AuthFormState extends State<AuthForm> {
             children: [
               const Text('Informe um e-mail'),
               TextFormField(
+                controller: _fEmailController,
                 decoration: const InputDecoration(
                   labelText: 'E-mail',
                   prefixIcon: FaIcon(FontAwesomeIcons.at),
@@ -177,6 +181,33 @@ class _AuthFormState extends State<AuthForm> {
                   return null;
                 },
               ),
+              const Text('Informe seu CPF'),
+              TextFormField(
+                controller: _fCpfController,
+                decoration: const InputDecoration(
+                  labelText: 'CPF',
+                  prefixIcon: FaIcon(FontAwesomeIcons.idCardClip),
+                  prefixIconConstraints:
+                      BoxConstraints(minHeight: 1, minWidth: 38),
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color.fromRGBO(248, 147, 31, 1)),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                // validator: (_cpf) {
+                //   final validador = validarCpf.validarCPF(_cpf!);
+                //   if (!validador) {
+                //     return 'Informe um CPF válido.';
+                //   }
+                //   return null;
+                // },
+              ),
             ],
           ),
           actions: [
@@ -188,7 +219,8 @@ class _AuthFormState extends State<AuthForm> {
             ),
             ElevatedButton(
               onPressed: () {
-                _sendPasswordEmail(_emailController.text);
+                _sendPasswordEmail(
+                    _fEmailController.text, _fCpfController.text);
                 Navigator.of(context).pop();
               },
               child: const Text('Enviar'),
@@ -273,7 +305,7 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                     validator: (_password) {
                       final password = _password ?? '';
-                      if (password.isEmpty || password.length < 6) {
+                      if (password.isEmpty || password.length < 4) {
                         return 'Informe uma senha válida.';
                       }
                       return null;
@@ -382,7 +414,7 @@ class _AuthFormState extends State<AuthForm> {
                   TextButton(
                     onPressed: _switchAuthMode,
                     child: Text(_isLogin() ? 'CADASTRAR' : 'LOGIN',
-                        style: TextStyle(                         
+                        style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                         )),
                   ),

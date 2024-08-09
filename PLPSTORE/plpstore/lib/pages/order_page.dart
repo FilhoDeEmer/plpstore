@@ -116,7 +116,7 @@ class _OrderPageState extends State<OrderPage> {
 
   String? _envioError;
   bool _isLoading = false;
-  Future<void> _finalizarPedido(BuildContext context) async {
+  Future<void> _finalizarPedido(Cart cart, Auth userProvider) async {
     setState(() {
       _envioError = _tipoEnvio == null ? 'Selecione um tipo de envio' : null;
     });
@@ -131,7 +131,6 @@ class _OrderPageState extends State<OrderPage> {
 
     try {
       final userProvider = Provider.of<Auth>(context, listen: false);
-      final cart = Provider.of<Cart>(context, listen: false);
 
       final List<Map<String, dynamic>> produtos = cart.items.values.map((item) {
         return {
@@ -232,7 +231,8 @@ class _OrderPageState extends State<OrderPage> {
                           child: Column(
                             children: [
                               _buildProductsCard(constraints, items),
-                              _buildDeliveryInfoCard(context),
+                              _buildDeliveryInfoCard(
+                                  context, cart, userProvider),
                             ],
                           ),
                         );
@@ -300,7 +300,8 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildDeliveryInfoCard(BuildContext context) {
+  Widget _buildDeliveryInfoCard(
+      BuildContext context, Cart cart, Auth userPovider) {
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -441,7 +442,10 @@ class _OrderPageState extends State<OrderPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        _finalizarPedido(context);
+                        setState(() {
+                          _isLoading = true;
+                        });
+                        _finalizarPedido(cart, userPovider);
                       },
                       style: const ButtonStyle(
                         backgroundColor:
@@ -522,52 +526,54 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _buildShippingDropdown(String valorTotal) {
-  return Column(
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            labelText: 'Tipo de Envio',
-            errorText: _envioError, // Exibe mensagem de erro, se houver
-          ),
-          hint: const Text('Selecione o tipo de envio'),
-          value: _tipoEnvio,
-          items: envio.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: (String? newValue) async {
-            if (newValue != null) {
-              setState(() {
-                _tipoEnvio = newValue;
-              });
+  Widget _buildShippingDropdown(String valorCompra) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Tipo de Envio',
+              errorText: _envioError, // Exibe mensagem de erro, se houver
+            ),
+            hint: const Text('Selecione o tipo de envio'),
+            value: _tipoEnvio,
+            items: envio.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item),
+              );
+            }).toList(),
+            onChanged: (String? newValue) async {
+              if (newValue != null) {
+                setState(() {
+                  _tipoEnvio = newValue;
+                });
 
-              try {
-                final valor = await calculadoraFrete.calcularFrete(
-                  cepController.text,
-                  valorTotal.toString(),
-                  _tipoEnvio!, // Use o valor selecionado
-                );
-                setState(() {
-                  valorFrete = valor;
-                });
-              } catch (e) {
-                //print('Erro ao calcular frete: $e');
-                setState(() {
-                  valorFrete = 0.0; // Defina um valor padrão ou trate o erro adequadamente
-                  _envioError = 'Não foi possível calcular o frete'; // Exiba mensagem de erro se necessário
-                });
+                try {
+                  final valor = await calculadoraFrete.calcularFrete(
+                    cepController.text,
+                    valorTotal.toString(),
+                    _tipoEnvio!, // Use o valor selecionado
+                  );
+                  setState(() {
+                    valorFrete = valor;
+                    valorTotal = (double.parse(valorCompra) + valorFrete);
+                  });
+                } catch (e) {
+                  //print('Erro ao calcular frete: $e');
+                  setState(() {
+                    valorFrete =
+                        0.0; // Defina um valor padrão ou trate o erro adequadamente
+                    _envioError =
+                        'Não foi possível calcular o frete'; // Exiba mensagem de erro se necessário
+                  });
+                }
               }
-            }
-          },
+            },
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }

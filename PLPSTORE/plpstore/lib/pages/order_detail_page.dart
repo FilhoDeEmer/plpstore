@@ -126,10 +126,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                         ? 'Aguardando pagamento'
                                         : 'Status: ${pedido['status']}',
                                     child: FaIcon(
-                                      _getIconForStatus(pedido['status']).icon,
-                                      color: _getIconForStatus(pedido['status'])
+                                      _getIconForStatus(pedido).icon,
+                                      color: _getIconForStatus(pedido)
                                           .color,
-                                      size: _getIconForStatus(pedido['status'])
+                                      size: _getIconForStatus(pedido)
                                           .size,
                                     ),
                                   ),
@@ -193,8 +193,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     );
   }
 
-  FaIcon _getIconForStatus(String status) {
-    switch (status) {
+  FaIcon _getIconForStatus(dynamic status) {
+    print(status);
+    switch (status['status']) {
       case 'Retirada':
         return FaIcon(
           FontAwesomeIcons.solidCircleCheck,

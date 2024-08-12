@@ -35,8 +35,10 @@ class _ProductGridState extends State<ProductGrid> {
   void initState() {
     super.initState();
 
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    _allProductsFuture = productProvider.initializeAllProductsFuture(widget.colecao);
+    final productProvider =
+        Provider.of<ProductProvider>(context, listen: false);
+    _allProductsFuture =
+        productProvider.initializeAllProductsFuture(widget.colecao);
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
@@ -55,7 +57,8 @@ class _ProductGridState extends State<ProductGrid> {
           _isSearchVisible = true;
         });
       }
-    } else if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
       if (_isSearchVisible) {
         setState(() {
           _isSearchVisible = false;
@@ -78,27 +81,38 @@ class _ProductGridState extends State<ProductGrid> {
     setState(() {
       currentPage++;
     });
-    _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _scrollController.animateTo(0.0,
+        duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
   void _previousPage() {
     setState(() {
       currentPage--;
     });
-    _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 300), curve: Curves.ease);
+    _scrollController.animateTo(0.0,
+        duration: const Duration(milliseconds: 300), curve: Curves.ease);
   }
 
   List<Product> _applyFilters(List<Product> products) {
     if (energia) {
-      products = products.where((product) => product.subCategoriaNome.contains('Energia')).toList();
+      products = products
+          .where((product) => product.subCategoriaNome.contains('Energia'))
+          .toList();
     } else if (pokemon) {
-      products = products.where((product) => product.subCategoriaNome.contains('Pokemon')).toList();
+      products = products
+          .where((product) => product.subCategoriaNome.contains('Pokemon'))
+          .toList();
     } else if (treinador) {
-      products = products.where((product) => product.subCategoriaNome.contains('Treinador')).toList();
+      products = products
+          .where((product) => product.subCategoriaNome.contains('Treinador'))
+          .toList();
     } else if (emEstoque) {
-      products = products.where((product) => int.parse(product.estoque) > 0).toList();
+      products =
+          products.where((product) => int.parse(product.estoque) > 0).toList();
     } else {
-      products = products.where((product) => product.nome.toLowerCase().contains(searchTerm)).toList();
+      products = products
+          .where((product) => product.nome.toLowerCase().contains(searchTerm))
+          .toList();
     }
     return products;
   }
@@ -110,8 +124,12 @@ class _ProductGridState extends State<ProductGrid> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: PokeballLoading());
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty || snapshot.hasError) {
-          return const Center(child: Text('Nenhum produto encontrado.', style: TextStyle(color: Color.fromRGBO(177, 136, 2, 1))));
+        } else if (!snapshot.hasData ||
+            snapshot.data!.isEmpty ||
+            snapshot.hasError) {
+          return const Center(
+              child: Text('Nenhum produto encontrado.',
+                  style: TextStyle(color: Color.fromRGBO(177, 136, 2, 1))));
         } else {
           List<Product> productList = _applyFilters(snapshot.data!);
 
@@ -120,7 +138,8 @@ class _ProductGridState extends State<ProductGrid> {
           int startIndex = (currentPage - 1) * itemsPerPage;
           int endIndex = startIndex + itemsPerPage;
           if (endIndex > totalItems) endIndex = totalItems;
-          List<Product> paginatedProducts = productList.sublist(startIndex, endIndex);
+          List<Product> paginatedProducts =
+              productList.sublist(startIndex, endIndex);
 
           return Column(
             children: [
@@ -136,9 +155,11 @@ class _ProductGridState extends State<ProductGrid> {
                         decoration: const InputDecoration(
                           suffixIcon: Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: FaIcon(FontAwesomeIcons.searchengin, color: Colors.black),
+                            child: FaIcon(FontAwesomeIcons.searchengin,
+                                color: Colors.black),
                           ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 10.0),
                           border: OutlineInputBorder(),
                           hintText: 'Buscar',
                         ),
@@ -212,7 +233,8 @@ class _ProductGridState extends State<ProductGrid> {
                     const Text('Produtos por página'),
                     DropdownButton<int>(
                       value: itemsPerPage,
-                      items: itemsPerPageOptions.map<DropdownMenuItem<int>>((int value) {
+                      items: itemsPerPageOptions
+                          .map<DropdownMenuItem<int>>((int value) {
                         return DropdownMenuItem<int>(
                           value: value,
                           child: Text(value.toString()),
@@ -229,17 +251,31 @@ class _ProductGridState extends State<ProductGrid> {
                 ),
               ),
               Expanded(
-                child: GridView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(10),
-                  itemCount: paginatedProducts.length,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    childAspectRatio: 0.72,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                  ),
-                  itemBuilder: (context, index) => ProductGridItem(data: paginatedProducts[index]),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    double maxCrossAxisExtent = constraints.maxWidth / 2;
+                    // Obtém a altura da tela.
+                    double screenHeight = MediaQuery.of(context).size.height;
+                    // Define a altura de cada item do grid. Você pode ajustar isso conforme necessário.
+                    double itemHeight =
+                        screenHeight / (paginatedProducts.length / 9);
+                    // Calcula o childAspectRatio com base na altura e largura do item.
+                    double childAspectRatio = maxCrossAxisExtent / itemHeight;
+
+                    return GridView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(10),
+                      itemCount: paginatedProducts.length,
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: maxCrossAxisExtent,
+                        childAspectRatio: childAspectRatio,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                      ),
+                      itemBuilder: (context, index) =>
+                          ProductGridItem(data: paginatedProducts[index]),
+                    );
+                  },
                 ),
               ),
               Row(

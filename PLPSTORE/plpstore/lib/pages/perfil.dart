@@ -32,8 +32,33 @@ class _PerfilPageState extends State<PerfilPage> {
   }
 
   final List<String> _states = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
-    'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO'
   ];
 
   @override
@@ -48,7 +73,9 @@ class _PerfilPageState extends State<PerfilPage> {
         future: _userDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: PokeballLoading()); // Indicador de carregamento para dados do usuário
+            return Center(
+                child:
+                    PokeballLoading()); // Indicador de carregamento para dados do usuário
           } else if (snapshot.hasError) {
             return Center(child: Text('Erro ao carregar dados'));
           } else {
@@ -64,7 +91,9 @@ class _PerfilPageState extends State<PerfilPage> {
                     builder: (context, pedidosSnapshot) {
                       if (pedidosSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Center(child: PokeballLoading()); // Indicador de carregamento para pedidos
+                        return Center(
+                            child:
+                                PokeballLoading()); // Indicador de carregamento para pedidos
                       } else if (pedidosSnapshot.hasError) {
                         return Center(child: Text('Erro ao carregar pedidos'));
                       } else {
@@ -133,20 +162,20 @@ class _PerfilPageState extends State<PerfilPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildGridItem(
-            'Total de Pedidos', totalPedidos, Colors.blue.shade900, pedidos),
-        _buildGridItem(
-            'Pedidos Pagos', pedidosPagos, Colors.green.shade900, pedidos),
-        _buildGridItem(
-            'Pedidos Não Pagos', pedidosNaoPagos, Colors.red.shade900, pedidos),
+        _buildGridItem('Total de Pedidos', totalPedidos, Colors.blue.shade900,
+            pedidos, 'energiadeagua.png'),
+        _buildGridItem('Pedidos Pagos', pedidosPagos, Colors.green.shade900,
+            pedidos, 'energiadegrama.png'),
+        _buildGridItem('Pedidos Não Pagos', pedidosNaoPagos,
+            Colors.red.shade900, pedidos, 'energiadefogo.png'),
         _buildGridItem('Aguardando Entrega', aguardandoEntrega,
-            Colors.amber.shade900, pedidos),
+            Colors.amber.shade900, pedidos, 'energiaderaio.jpeg'),
       ],
     );
   }
 
-  Widget _buildGridItem(
-      String label, String value, Color color, List<dynamic> pedidos) {
+  Widget _buildGridItem(String label, String value, Color color,
+      List<dynamic> pedidos, String img) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context)
@@ -156,39 +185,45 @@ class _PerfilPageState extends State<PerfilPage> {
         elevation: 4,
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.2),
-                offset: const Offset(0, 3),
-                blurRadius: 5,
-                spreadRadius: 2,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/img/${img}',
+                fit: BoxFit.cover, 
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: color),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ],
             ),
-          ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: color.withOpacity(
+                    0.6), 
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -113,6 +113,10 @@ flutter:
     - assets/img/logo_plp.png
     - assets/img/logo_circulado.png
     - assets/img/loading_pokeball.png
+    - assets/img/energiadeagua.png
+    - assets/img/energiadefogo.png
+    - assets/img/energiadegrama.png
+    - assets/img/energiaderaio.jpeg
     - assets/front.html
 
   

@@ -45,13 +45,14 @@ class _OrderPageState extends State<OrderPage> {
   final observacaoController = TextEditingController();
   final numeroController = TextEditingController();
 
+  bool _isLoading = true; // Inicialmente, o carregamento está ativo
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
 
-  bool erro = false;
   Future<void> _loadUserData() async {
     try {
       final userProvider = Provider.of<Auth>(context, listen: false);
@@ -76,6 +77,11 @@ class _OrderPageState extends State<OrderPage> {
     } catch (e) {
       // Handle error
       print('Erro ao carregar dados do cliente: $e');
+    } finally {
+      // Garanta que _isLoading seja definido como false quando a carga for concluída
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -115,7 +121,8 @@ class _OrderPageState extends State<OrderPage> {
   ];
 
   String? _envioError;
-  bool _isLoading = false;
+  bool erro = false;
+
   Future<void> _finalizarPedido(Cart cart, Auth userProvider) async {
     setState(() {
       _envioError = _tipoEnvio == null ? 'Selecione um tipo de envio' : null;
@@ -146,13 +153,16 @@ class _OrderPageState extends State<OrderPage> {
       final dateFormat = DateFormat('dd-MM-yyyy-HH:mm:ss');
       final sessao = '${dateFormat.format(now)}-$randomNumber';
 
+      print(valorFrete);
+      print(valorPedido);
+
       final Map<String, dynamic> pedido = {
         'id_user': userProvider.getUserId(),
         'produtos': produtos,
         'sessao': sessao,
         'sub_total': valorPedido,
         'frete': valorFrete,
-        'total': valorTotal,
+        'total': valorFrete + valorPedido,
         'pgto_entrega': _tipoEnvio == 'Retirar no Local' ? 'Sim' : 'Não',
         'tipo_frete': _tipoEnvio == 'Retirar no Local' ? '' : _tipoEnvio,
       };
@@ -165,7 +175,7 @@ class _OrderPageState extends State<OrderPage> {
 
       if (saleId != null) {
         final urlPayment = await gerarPedido.criarPreferencia(
-            valorTotal, userProvider.getUserId(), saleId.toString());
+            (valorPedido+valorFrete), userProvider.getUserId(), saleId.toString());
         if (urlPayment['id_payment'] != 'fail') {
           await _launchInWebViewWithoutDomStorage(
               urlPayment['test_init_point']!);
@@ -223,7 +233,7 @@ class _OrderPageState extends State<OrderPage> {
               ),
               body: _isLoading
                   ? Center(
-                      child: PokeballLoading(),
+                      child: PokeballLoading(), // Indicador de carregamento
                     )
                   : LayoutBuilder(
                       builder: (context, constraints) {
@@ -247,8 +257,8 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget _buildProductsCard(BoxConstraints constraints, List<CartItem> items) {
     return SizedBox(
-      width: double.infinity,
-      height: constraints.maxHeight * 0.4,
+      width: 400,
+      height: 300,
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.all(16),
@@ -261,22 +271,40 @@ class _OrderPageState extends State<OrderPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
-                  child: Text('Produtos',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.tertiary)),
+                  child: Text(
+                    'Produtos',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
+              Flexible(
+                child: ListView.separated(
                   itemCount: items.length,
+                  separatorBuilder: (ctx, i) => Divider(
+                      height: 1,
+                      thickness: 1,
+                      color:
+                          Colors.grey.shade300), // Divisores com altura menor
                   itemBuilder: (ctx, i) {
                     final item = items[i];
                     return ListTile(
-                      title: Text(item.name),
-                      leading: Text('${item.quantity}x'),
-                      trailing: Text(item.price.toStringAsFixed(2)),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal:
+                              8.0), // Reduz o padding interno do ListTile
+                      title: Text(item.name,
+                          style: TextStyle(
+                              fontSize:
+                                  14)), // Ajusta o tamanho da fonte para reduzir o espaço
+                      leading: Text('${item.quantity}x',
+                          style: TextStyle(
+                              fontSize: 14)), // Ajusta o tamanho da fonte
+                      trailing: Text(item.price.toStringAsFixed(2),
+                          style: TextStyle(
+                              fontSize: 14)), // Ajusta o tamanho da fonte
                     );
                   },
                 ),
@@ -427,9 +455,10 @@ class _OrderPageState extends State<OrderPage> {
                 _buildTextField(observacaoController, 'Observações', (value) {
                   return null;
                 }),
-                _buildShippingDropdown(valorTotal.toString()),
+                _buildShippingDropdown(valorPedido.toString()),
                 Text('Valor do frete: ${valorFrete.toStringAsFixed(2)}'),
-                Text('Valor Total: ${valorTotal.toStringAsFixed(2)}'),
+                Text(
+                    'Valor Total: ${(valorPedido + valorFrete).toStringAsFixed(2)}'),
                 if (erro)
                   Text(
                     'Campo obrigatório*',

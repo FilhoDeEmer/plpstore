@@ -28,6 +28,8 @@ class _AuthFormState extends State<AuthForm> {
   final _passwordConfirmController = TextEditingController();
   final _cpfController = MaskedTextController(mask: '000.000.000-00');
   final _formKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
+
   bool _rememberMe = false;
   bool _isObscure = true;
   bool _isObscureConfirm = true;
@@ -93,6 +95,35 @@ class _AuthFormState extends State<AuthForm> {
     );
   }
 
+  Future<void> _submitPassword() async {
+    if (!_passwordFormKey.currentState!.validate()) {
+      return;
+    }
+
+    String resposta =
+        await _sendPasswordEmail(_fEmailController.text, _fCpfController.text);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Recuperação de Senha'),
+          content: Text(resposta),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _fCpfController.clear();
+                _fEmailController.clear();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -140,89 +171,96 @@ class _AuthFormState extends State<AuthForm> {
     }
   }
 
-  void _sendPasswordEmail(String email, String cpf) {
+  Future<String> _sendPasswordEmail(String email, String cpf) async {
     Auth verificar = Auth();
-    verificar.recuperarSenha(email, cpf);
+    String resposta = await verificar.recuperarSenha(email, cpf);
+    return resposta;
   }
 
-  void _passwordRecover() {
+  void _passwordRecover(BuildContext context) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Recuperar senha'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Informe um e-mail'),
-              TextFormField(
-                controller: _fEmailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  prefixIcon: FaIcon(FontAwesomeIcons.at),
-                  prefixIconConstraints:
-                      BoxConstraints(minHeight: 1, minWidth: 38),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+          title: const Text('Recuperar senha!'),
+          content: Form(
+            key: _passwordFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Informe seu e-mail'),
+                TextFormField(
+                  controller: _fEmailController,
+                  decoration: InputDecoration(
+                    labelText: 'E-mail',
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FaIcon(FontAwesomeIcons.at,
+                          color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    prefixIconConstraints:
+                        const BoxConstraints(minHeight: 1, minWidth: 38),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Color.fromRGBO(248, 147, 31, 1)),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                  validator: (_email) {
+                    final email = _email ?? '';
+                    if (email.trim().isEmpty || !email.contains('@')) {
+                      return 'Informe um e-mail válido.';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (_email) {
-                  final email = _email ?? '';
-                  if (email.trim().isEmpty || !email.contains('@')) {
-                    return 'Informe um e-mail válido.';
-                  }
-                  return null;
-                },
-              ),
-              const Text('Informe seu CPF'),
-              TextFormField(
-                controller: _fCpfController,
-                decoration: const InputDecoration(
-                  labelText: 'CPF',
-                  prefixIcon: FaIcon(FontAwesomeIcons.idCardClip),
-                  prefixIconConstraints:
-                      BoxConstraints(minHeight: 1, minWidth: 38),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                const Text('Informe seu CPF'),
+                TextFormField(
+                  controller: _fCpfController,
+                  decoration: InputDecoration(
+                    labelText: 'CPF',
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FaIcon(FontAwesomeIcons.idCardClip,
+                          color: Theme.of(context).colorScheme.secondary),
+                    ),
+                    prefixIconConstraints:
+                        const BoxConstraints(minHeight: 1, minWidth: 38),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Color.fromRGBO(248, 147, 31, 1)),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obrigatório';
+                    }
+                    if (!validarCpf.validarCPF(value)) {
+                      return 'CPF inválido';
+                    }
+                    return null;
+                  },
                 ),
-                keyboardType: TextInputType.emailAddress,
-                // validator: (_cpf) {
-                //   final validador = validarCpf.validarCPF(_cpf!);
-                //   if (!validador) {
-                //     return 'Informe um CPF válido.';
-                //   }
-                //   return null;
-                // },
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
+                _fCpfController.clear();
+                _fEmailController.clear();
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             ),
             ElevatedButton(
-              onPressed: () {
-                _sendPasswordEmail(
-                    _fEmailController.text, _fCpfController.text);
-                Navigator.of(context).pop();
-              },
+              onPressed: _submitPassword,
               child: const Text('Enviar'),
             ),
           ],
@@ -403,7 +441,7 @@ class _AuthFormState extends State<AuthForm> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: _passwordRecover,
+                        onPressed: () => _passwordRecover(context),
                         child: Text('Recuperar Senha?',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSecondary,

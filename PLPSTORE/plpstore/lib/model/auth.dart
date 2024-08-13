@@ -77,42 +77,43 @@ class Auth with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> recuperarSenha(String email, String cpf) async {
+  Future<String> recuperarSenha(String email, String cpf) async {
     String url =
         'https://plpstore.com.br/apis/api/usuarios/recuperarSenha.php?emailUsuario=${email}&cpfUsuario=${cpf}';
     final response = await http.post(Uri.parse(url), body: {});
     Map<String, dynamic> responseData = jsonDecode(response.body);
-
     if (responseData['code'] == 1) {
-      _sendEmail(email, responseData['result'][0]['senha']);
+      return _sendEmail(email, responseData['result'][0]['senha']);
     } else {
-      print(responseData);
+      return 'falha';
     }
   }
 
-  Future<void> _sendEmail(String email, String send) async {
+  Future<String> _sendEmail(String email, String send) async {
     try {
       await emailjs.send(
-        'YOUR_SERVICE_ID',
-        'YOUR_TEMPLATE_ID',
+        'service_4bd585m',
+        'template_upxlnrg',
         {
-          'to_email': email,
-          'message': 'E-mail de recuperação de senha: ${send}',
+          'to_email': 'eme_silva_bezerra@hotmail.com',
+          'message': 'Senha: ${send}',
+          'notes': 'PLP Store',
+          'from_name': 'PLP Store'
         },
         const emailjs.Options(
-            publicKey: 'YOUR_PUBLIC_KEY',
-            privateKey: 'YOUR_PRIVATE_KEY',
+            publicKey: '_dbUvBL9mkaEm_qtH',
+            privateKey: 'fnO-Ed2Cv40A2uvMEFlzG',
             limitRate: const emailjs.LimitRate(
               id: 'app',
               throttle: 10000,
             )),
       );
-      print('SUCCESS!');
+      return 'E-mail de recuperação enviado com sucesso, verifique sua caixa de entrada';
     } catch (error) {
       if (error is emailjs.EmailJSResponseStatus) {
-        print('ERROR... $error');
+        return ('ERROR... $error');
       }
-      print(error.toString());
+      return (error.toString());
     }
   }
 

@@ -115,24 +115,22 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('ID: ${pedido['id'].toString()}'),
-                              Row(
+                              Column(
                                 children: [
-                                  Text(
-                                    'Status:',
-                                    style: TextStyle(fontSize: 12),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        'Status:',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                      FaIcon(
+                                        _getIconForStatus(pedido).icon,
+                                        color: _getIconForStatus(pedido).color,
+                                        size: _getIconForStatus(pedido).size,
+                                      ),
+                                    ],
                                   ),
-                                  Tooltip(
-                                    message: pedido['pago'] == 'Não'
-                                        ? 'Aguardando pagamento'
-                                        : 'Status: ${pedido['status']}',
-                                    child: FaIcon(
-                                      _getIconForStatus(pedido).icon,
-                                      color: _getIconForStatus(pedido)
-                                          .color,
-                                      size: _getIconForStatus(pedido)
-                                          .size,
-                                    ),
-                                  ),
+                                  Text(_getIconForStatus(pedido).semanticLabel!, style: TextStyle(fontSize: 8),)
                                 ],
                               ),
                             ],
@@ -194,35 +192,39 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   }
 
   FaIcon _getIconForStatus(dynamic status) {
-    print(status);
     switch (status['status']) {
       case 'Retirada':
         return FaIcon(
           FontAwesomeIcons.solidCircleCheck,
+          semanticLabel: 'Entregue',
           color: Colors.green,
           size: 12,
         );
       case 'Entregue':
         return FaIcon(
           FontAwesomeIcons.solidCircleCheck,
+          semanticLabel: 'Entregue',
           color: Colors.green,
           size: 12,
         );
       case 'Não enviado':
         return FaIcon(
           FontAwesomeIcons.hourglassHalf,
+          semanticLabel: 'Aguardando envio',
           color: Colors.orange,
           size: 12,
         );
       case 'Cancelado':
         return FaIcon(
           FontAwesomeIcons.solidCircleXmark,
+          semanticLabel: 'Cancelada',
           color: Colors.red,
           size: 12,
         );
       case 'Disponivel':
         return FaIcon(
           FontAwesomeIcons.mapPin,
+          semanticLabel: 'Aguardando retirada',
           color: Colors.red,
           size: 12,
         );
@@ -230,11 +232,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         return FaIcon(
           FontAwesomeIcons.dollarSign,
           color: Colors.red,
+          semanticLabel: 'Aguardando pagamento',
           size: 12,
         );
       default:
         return FaIcon(
           FontAwesomeIcons.circleExclamation,
+          semanticLabel: 'Aguardando',
           color: Colors.grey,
           size: 14,
         );

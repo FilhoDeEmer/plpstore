@@ -8,6 +8,7 @@ import 'package:plpstore/model/cliente.dart';
 import 'package:plpstore/model/get_clientes.dart';
 import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
+import 'package:plpstore/components/funcao_externas.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -91,9 +92,7 @@ class _PerfilPageState extends State<PerfilPage> {
                     builder: (context, pedidosSnapshot) {
                       if (pedidosSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Center(
-                            child:
-                                PokeballLoading()); // Indicador de carregamento para pedidos
+                        return Center(child: PokeballLoading());
                       } else if (pedidosSnapshot.hasError) {
                         return Center(child: Text('Erro ao carregar pedidos'));
                       } else {
@@ -108,6 +107,38 @@ class _PerfilPageState extends State<PerfilPage> {
                                 _buildAddressInfo(context, cliente),
                                 const SizedBox(height: 20),
                                 _buildStatsGrid(pedidos),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _buildContactRow(
+                                      icon: FontAwesomeIcons.instagram,
+                                      iconColor: Colors.pink,
+                                      text: '@plpstore_',
+                                      onPressed: () =>
+                                          FuncaoExterna().instagram(),
+                                    ),
+                                    _buildContactRow(
+                                      icon: FontAwesomeIcons.whatsapp,
+                                      iconColor: Colors.green,
+                                      text: '(13) 9 9618-7797',
+                                      onPressed: () =>
+                                          FuncaoExterna().whatsApp(),
+                                    ),
+                                  ],
+                                ),
+                                _buildContactRow(
+                                  icon: FontAwesomeIcons.envelope,
+                                  iconColor: Colors.blue,
+                                  text: 'adm@plpstore.com.br',
+                                  onPressed: () {},
+                                ),
+                                _buildContactRow(
+                                  icon: FontAwesomeIcons.globe,
+                                  iconColor: Colors.blue,
+                                  text: 'www.plpstore.com.br',
+                                  onPressed: () => FuncaoExterna().site(),
+                                ),
                                 _buildLogoutButton(user, cart, cliente),
                               ],
                             ),
@@ -162,14 +193,14 @@ class _PerfilPageState extends State<PerfilPage> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        _buildGridItem('Total de Pedidos', totalPedidos, Colors.blue.shade900,
-            pedidos, 'energiadeagua.png'),
-        _buildGridItem('Pedidos Pagos', pedidosPagos, Colors.green.shade900,
+        _buildGridItem('Total de Pedidos', totalPedidos,
+            Color.fromRGBO(176, 207, 255, 1), pedidos, 'energiadeagua.png'),
+        _buildGridItem('Pedidos Pagos', pedidosPagos, Color(0xFFbaecb6),
             pedidos, 'energiadegrama.png'),
-        _buildGridItem('Pedidos Não Pagos', pedidosNaoPagos,
-            Colors.red.shade900, pedidos, 'energiadefogo.png'),
+        _buildGridItem('Pedidos Não Pagos', pedidosNaoPagos, Color(0xFFFFB0B0),
+            pedidos, 'energiadefogo.png'),
         _buildGridItem('Aguardando Entrega', aguardandoEntrega,
-            Colors.amber.shade900, pedidos, 'energiaderaio.jpeg'),
+            Color(0xFFFDDEBA), pedidos, 'energiaderaio.jpeg'),
       ],
     );
   }
@@ -190,14 +221,14 @@ class _PerfilPageState extends State<PerfilPage> {
             Positioned.fill(
               child: Image.asset(
                 'assets/img/${img}',
-                fit: BoxFit.cover, 
+                opacity: const AlwaysStoppedAnimation(.2),
+                fit: BoxFit.cover,
               ),
             ),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: color.withOpacity(
-                    0.6), 
+                color: color.withOpacity(0.5),
               ),
               child: Padding(
                 padding:
@@ -207,8 +238,7 @@ class _PerfilPageState extends State<PerfilPage> {
                   children: [
                     Text(
                       label,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -216,7 +246,6 @@ class _PerfilPageState extends State<PerfilPage> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -226,6 +255,27 @@ class _PerfilPageState extends State<PerfilPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildContactRow({
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FaIcon(icon, color: iconColor),
+        TextButton(
+          onPressed: onPressed,
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 

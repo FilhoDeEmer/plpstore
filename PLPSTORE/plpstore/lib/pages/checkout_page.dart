@@ -3,10 +3,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plpstore/utils/app_routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class MyAppTest extends StatelessWidget {
+class PaymentPage extends StatelessWidget {
   final String? url;
 
-  const MyAppTest({Key? key, this.url}) : super(key: key);
+  const PaymentPage({Key? key, this.url}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

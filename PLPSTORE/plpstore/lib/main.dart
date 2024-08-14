@@ -127,7 +127,7 @@ class MyApp extends StatelessWidget {
           AppRoutes.pedido: (ctx) => const OrderPage(),
           AppRoutes.combos: (ctx) => const ComboPage(),
           AppRoutes.orderDetail: (ctx) => const OrderDetailPage(),
-          AppRoutes.checkout: (ctx) => const MyAppTest(),
+          AppRoutes.checkout: (ctx) => const PaymentPage(),
           AppRoutes.colection: (ctx, {String? colectionName}) =>
               ProductGridPage(colectionName: colectionName),
         },
@@ -135,5 +135,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// AppRoutes.colection: (ctx, {String? colectionName}) => ProductGridPage(colectionName: colectionName),

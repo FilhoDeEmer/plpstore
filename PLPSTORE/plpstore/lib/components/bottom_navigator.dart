@@ -48,7 +48,7 @@ class BottomNavigator extends StatelessWidget {
             label: 'Carrinho',
           ),
           BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.circleUser),
+            icon: FaIcon(FontAwesomeIcons.solidCircleUser),
             label: 'Perfil',
           ),
         ],

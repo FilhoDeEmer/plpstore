@@ -101,41 +101,32 @@ class _ProductGridState extends State<ProductGrid> {
   }
 
   List<Product> _applyFilters(List<Product> products) {
-    if (energia) {
-      if (emEstoque) {
-        products = products
-            .where((product) => int.parse(product.estoque) > 0)
-            .toList();
-      }
-      products = products
-          .where((product) => product.subCategoriaNome.contains('Energia'))
-          .toList();
-    } else if (pokemon) {
-      if (emEstoque) {
-        products = products
-            .where((product) => int.parse(product.estoque) > 0)
-            .toList();
-      }
+    if (pokemon) {
       products = products
           .where((product) => product.subCategoriaNome.contains('Pokemon'))
           .toList();
     } else if (treinador) {
-      if (emEstoque) {
-        products = products
-            .where((product) => int.parse(product.estoque) > 0)
-            .toList();
-      }
       products = products
           .where((product) => product.subCategoriaNome.contains('Treinador'))
           .toList();
-    } else if (emEstoque) {
-      products =
-          products.where((product) => int.parse(product.estoque) > 0).toList();
-    } else {
+    } else if (energia) {
+      products = products
+          .where((product) => product.subCategoriaNome.contains('Energia'))
+          .toList();
+    }
+
+    if (emEstoque) {
+      products = products
+          .where((product) => int.tryParse(product.estoque) != null && int.parse(product.estoque) > 0)
+          .toList();
+    }
+
+    if (searchTerm.isNotEmpty) {
       products = products
           .where((product) => product.nome.toLowerCase().contains(searchTerm))
           .toList();
     }
+
     return products;
   }
 
@@ -146,9 +137,7 @@ class _ProductGridState extends State<ProductGrid> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: PokeballLoading());
-        } else if (!snapshot.hasData ||
-            snapshot.data!.isEmpty ||
-            snapshot.hasError) {
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty || snapshot.hasError) {
           return const Center(
               child: Text('Nenhum produto encontrado.',
                   style: TextStyle(color: Color.fromRGBO(177, 136, 2, 1))));
@@ -272,47 +261,63 @@ class _ProductGridState extends State<ProductGrid> {
                   ],
                 ),
               ),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    double maxCrossAxisExtent = constraints.maxWidth / 2;
-                    double screenHeight = MediaQuery.of(context).size.height;
+              paginatedProducts.isEmpty
+                  ? Text(
+                      'Produto não encontrado!',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
+                    )
+                  : Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          double maxCrossAxisExtent = constraints.maxWidth /
+                              2; // Define a largura máxima do item
+                          double screenHeight = MediaQuery.of(context)
+                              .size
+                              .height; // Obtém a altura da tela
 
-                    //double itemHeight =
-                    screenHeight / (paginatedProducts.length / 9);
+                          // Calcula a altura de cada item do grid com base na altura da tela e no número de itens por página
+                          double itemHeight =
+                              screenHeight / (paginatedProducts.length / 9);
 
-                    //double childAspectRatio = maxCrossAxisExtent / itemHeight;
+                          // Calcula a razão de aspecto para os itens do grid
+                          double childAspectRatio =
+                              maxCrossAxisExtent / itemHeight;
 
-                    return GridView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(10),
-                      itemCount: paginatedProducts.length,
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: maxCrossAxisExtent,
-                        childAspectRatio: 0.64,
-                        crossAxisSpacing: 5,
-                        mainAxisSpacing: 5,
+                          return GridView.builder(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.all(10),
+                            itemCount: paginatedProducts.length,
+                            gridDelegate:
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: maxCrossAxisExtent,
+                              childAspectRatio: 0.6,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                            ),
+                            itemBuilder: (context, index) =>
+                                ProductGridItem(data: paginatedProducts[index]),
+                          );
+                        },
                       ),
-                      itemBuilder: (context, index) =>
-                          ProductGridItem(data: paginatedProducts[index]),
-                    );
-                  },
+                    ),
+              if (paginatedProducts.isNotEmpty)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      onPressed: currentPage > 1 ? _previousPage : null,
+                      icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+                    ),
+                    Text('Página $currentPage de $totalPages'),
+                    IconButton(
+                      onPressed: currentPage < totalPages ? _nextPage : null,
+                      icon: const FaIcon(FontAwesomeIcons.arrowRight),
+                    ),
+                  ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: currentPage > 1 ? _previousPage : null,
-                    icon: const FaIcon(FontAwesomeIcons.arrowLeft),
-                  ),
-                  Text('Página $currentPage de $totalPages'),
-                  IconButton(
-                    onPressed: currentPage < totalPages ? _nextPage : null,
-                    icon: const FaIcon(FontAwesomeIcons.arrowRight),
-                  ),
-                ],
-              ),
             ],
           );
         }

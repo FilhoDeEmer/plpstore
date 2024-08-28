@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plpstore/model/calculadora_frete.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/product.dart';
-import 'package:plpstore/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetail extends StatefulWidget {
@@ -35,7 +34,7 @@ class _ProductDetailState extends State<ProductDetail> {
           widget.data.nome,
           style: TextStyle(
               color: Theme.of(context).colorScheme.tertiary,
-              fontSize: 20,
+              fontSize: deviceSize.width * 0.05,
               fontWeight: FontWeight.bold),
         ),
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.tertiary),
@@ -55,179 +54,227 @@ class _ProductDetailState extends State<ProductDetail> {
         leading: IconButton(
           icon: const FaIcon(FontAwesomeIcons.arrowLeft),
           onPressed: () {
-            Navigator.of(context)
-                .pop();
+            Navigator.of(context).pop();
           },
         ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(deviceSize.width * 0.02),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
                 elevation: 8,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image(
-                      image: NetworkImage(
-                          'https://plpstore.com.br/img/produtos/${widget.data.imagem}')),
+                  padding: EdgeInsets.all(deviceSize.width * 0.02),
+                  child: Stack(
+                    clipBehavior: Clip.antiAlias,
+                    alignment: Alignment.topCenter,
+                    children: [
+                      SizedBox(
+                        width: deviceSize.width * 0.9,
+                        child: FadeInImage(
+                          placeholder:
+                              const AssetImage('assets/img/tcg_card_back.jpg'),
+                          image: NetworkImage(
+                            'https://plpstore.com.br/img/produtos/${widget.data.imagem}',
+                          ),
+                          fit: BoxFit.cover,
+                          imageErrorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/img/tcg_card_back.jpg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 5,
+                        left: 10,
+                        child: Container(
+                          padding: EdgeInsets.all(deviceSize.width * 0.02),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.green.withOpacity(0.6),
+                          ),
+                          child: Text(
+                            'Reverse',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: deviceSize.width * 0.05,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              SizedBox(height: deviceSize.width * 0.02),
               Card(
                 color: Colors.white,
                 elevation: 8,
-                child: Column(
-                  children: [
-                    Text(
-                      'R\$${widget.data.valor}',
-                      style: const TextStyle(color: Colors.black, fontSize: 26),
-                    ),
-                    Text('Estq.: ${widget.data.estoque}'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Card(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                onPressed: () => _decrementQuantity(context),
-                                icon: const FaIcon(
-                                  FontAwesomeIcons.minus,
-                                  color: Colors.red,
+                child: Padding(
+                  padding: EdgeInsets.all(deviceSize.width * 0.02),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'R\$${widget.data.valor}',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: deviceSize.width * 0.06,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text('Estq.: ${widget.data.estoque}'),
+                      SizedBox(height: deviceSize.width * 0.02),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Card(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () => _decrementQuantity(context),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.minus,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                Text(addCar.toString()),
+                                IconButton(
+                                  onPressed: () => _incrementQuantity(context),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.plus,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            child: Container(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (widget.data.estoque == addCar) {
+                                    messageFail(context);
+                                  } else if (int.parse(widget.data.estoque) <=
+                                      0) {
+                                    messageFail(context);
+                                  } else {
+                                    cart.addItemMax(widget.data, addCar);
+                                    messageSuccess(context, cart);
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        int.parse(widget.data.estoque) <= 0
+                                            ? Colors.grey
+                                            : Colors.green,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: deviceSize.width * 0.1,
+                                        vertical: deviceSize.width * 0.03)),
+                                child: const FaIcon(
+                                  FontAwesomeIcons.cartShopping,
+                                  color: Colors.white,
                                 ),
                               ),
-                              Text(addCar.toString()),
-                              IconButton(
-                                onPressed: () => _incrementQuantity(context),
-                                icon: const FaIcon(
-                                  FontAwesomeIcons.plus,
-                                  color: Colors.blue,
+                            ),
+                          ),
+                          const Image(
+                            image: AssetImage('assets/img/mercadopagologo.png'),
+                            width: 100,
+                            height: 50,
+                          ),
+                        ],
+                      ),
+                      if (int.parse(widget.data.estoque) != 0)
+                        SizedBox(
+                          height: 80,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: SizedBox(
+                                  height: 60,
+                                  child: TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: cepController,
+                                    decoration: InputDecoration(
+                                      labelText: 'CEP',
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: deviceSize.width * 0.02),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                flex: 1,
+                                child: SizedBox(
+                                  height: 60,
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      value: frete,
+                                      items: list.map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          frete = newValue!;
+                                        });
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Flexible(
-                          child: Container(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (widget.data.estoque == addCar) {
-                                  messageFail(context);
-                                } else if (int.parse(widget.data.estoque) <=
-                                    0) {
-                                  messageFail(context);
-                                } else {
-                                  cart.addItemMax(widget.data, addCar);
-                                  messageSuccess(context, cart);
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      int.parse(widget.data.estoque) <= 0
-                                          ? Colors.grey
-                                          : Colors.green,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 40, vertical: 10)),
-                              child: const FaIcon(
-                                FontAwesomeIcons.cartShopping,
-                                color: Colors.white,
-                              ),
-                            ),
+                      if (int.parse(widget.data.estoque) != 0)
+                        Padding(
+                          padding: EdgeInsets.all(deviceSize.width * 0.02),
+                          child: ElevatedButton(
+                            child: const Text('Calcular'),
+                            onPressed: () async {
+                              try {
+                                final valor =
+                                    await calculadoraFrete.calcularFrete(
+                                        cepController.text,
+                                        widget.data.valor,
+                                        frete);
+                                setState(() {
+                                  valorFrete = valor;
+                                });
+                              } catch (e) {
+                                print('Erro ao calcular frete: $e');
+                              }
+                            },
                           ),
                         ),
-                        const Image(
-                          image: AssetImage('assets/img/mercadopagologo.png'),
-                          width: 100,
-                          height: 50,
-                        )
-                      ],
-                    ),
-                    if (int.parse(widget.data.estoque) != 0)
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        height: 80,
-                        width: deviceSize.width * 0.80,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: SizedBox(
-                                height: 60,
-                                child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  controller: cepController,
-                                  decoration:
-                                      const InputDecoration(labelText: 'CEP'),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 16,
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: SizedBox(
-                                height: 60,
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    isExpanded: true,
-                                    value: frete,
-                                    items: list.map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        frete = newValue!;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (int.parse(widget.data.estoque) != 0)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          child: const Text('Calcular'),
-                          onPressed: () async {
-                            try {
-                              final valor =
-                                  await calculadoraFrete.calcularFrete(
-                                      cepController.text,
-                                      widget.data.valor,
-                                      frete);
-                              setState(() {
-                                valorFrete = valor;
-                              });
-                            } catch (e) {
-                              print('Erro ao calcular frete: $e');
-                            }
-                          },
-                        ),
-                      ),
-                    if (valorFrete != 0)
-                      Text('Frete: ${valorFrete.toStringAsFixed(2)}')
-                  ],
+                      if (valorFrete != 0)
+                        Text('Frete: ${valorFrete.toStringAsFixed(2)}')
+                    ],
+                  ),
                 ),
               ),
+              SizedBox(height: deviceSize.width * 0.02),
               Card(
                 elevation: 8,
                 color: Colors.white,
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(deviceSize.width * 0.02),
                   child: Text(
                     widget.data.descricaoLonga,
-                    style: const TextStyle(
-                      fontSize: 10,
+                    style: TextStyle(
+                      fontSize: deviceSize.width * 0.04,
                     ),
                     textAlign: TextAlign.justify,
                     locale: const Locale('pt', 'BR'),
@@ -238,16 +285,7 @@ class _ProductDetailState extends State<ProductDetail> {
           ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigator(
-      //   currentIndex: 1,
-      //   onTap: (int i) {
-      //     setState(() {
-      //       index = i;
-      //     });
-      //     _navigateToPage(i, context);
-      //   },
-      //   cartItemCount: cart.itemsCount,
-      // ),
+
     );
   }
 
@@ -295,20 +333,5 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  void _navigateToPage(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
-        break;
-      case 1:
-        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
-        break;
-      case 2:
-        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
-        break;
-      case 3:
-        Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: index);
-        break;
-    }
-  }
+
 }

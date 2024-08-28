@@ -29,125 +29,173 @@ class _ProductGridItemState extends State<ProductGridItem> {
           ),
         );
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-          image: DecorationImage(
-            image: const AssetImage('assets/img/tcg_card_back.jpg'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.15), BlendMode.dstATop),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  widget.data.nome,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 14),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double width = constraints.maxWidth;
+          double height = width * 1.33; // Mantém a razão de aspecto do item
+          double imageHeight =
+              height * 0.6; // Proporção da altura da imagem em relação ao total
+          double textSize = width * 0.08; // Ajusta o tamanho do texto
+          double padding = width * 0.02; // Ajusta o padding
+
+          return Container(
+            padding:
+                EdgeInsets.symmetric(vertical: padding, horizontal: padding),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: const AssetImage('assets/img/tcg_card_back.jpg'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.15),
+                  BlendMode.dstATop,
                 ),
               ),
             ),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                width: 100,
-                height: 140,
-                child: FadeInImage(
-                  placeholder: const AssetImage('assets/img/tcg_card_back.jpg'),
-                  image: NetworkImage(
-                      'https://plpstore.com.br/img/produtos/${widget.data.imagem}'),
-                  fit: BoxFit.cover,
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/img/tcg_card_back.jpg',
-                      fit: BoxFit.cover,
-                    );
-                  },
-                ),
-              ),
-            ),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'R\$$precoFormat',
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontWeight: FontWeight.bold),
-                ),
-                const Spacer(),
-                Text(
-                  'Estq.: ${widget.data.estoque.toString()}',
-                  style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      fontWeight: FontWeight.bold),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Card(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () => _decrementQuantity(context),
-                        icon: const FaIcon(
-                          FontAwesomeIcons.minus,
-                          color: Colors.red,
-                        ),
+                Center(
+                  child: FittedBox(
+                    fit: BoxFit.fill,
+                    child: Text(
+                      widget.data.nome,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: textSize,
                       ),
-                      Text(addCar.toString()),
-                      IconButton(
-                        onPressed: () => _incrementQuantity(context),
-                        icon: const FaIcon(
-                          FontAwesomeIcons.plus,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Container(
-                    child: RawMaterialButton(
-                      onPressed: () {
-                        if (widget.data.estoque == addCar) {
-                          messageFail(context);
-                        } else if (int.parse(widget.data.estoque) <= 0) {
-                          messageFail(context);
-                        } else {
-                          cart.addItemMax(widget.data, addCar);
-                          messageSuccess(context, cart);
-                        }
-                      },
-                      elevation: 2,
-                      fillColor: int.parse(widget.data.estoque) <= 0
-                          ? Colors.grey
-                          : Colors.green,
-                      child: const FaIcon(
-                        FontAwesomeIcons.cartShopping,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                      padding: const EdgeInsets.all(15),
-                      shape: const CircleBorder(),
                     ),
                   ),
                 ),
+                Center(
+                  child: Container(
+                    padding: EdgeInsets.all(padding),
+                    width: width * 0.8,
+                    height: imageHeight,
+                    child: Stack(
+                      clipBehavior: Clip.antiAlias,
+                      alignment: Alignment.topCenter,
+                      children: [
+                        FadeInImage(
+                          placeholder:
+                              const AssetImage('assets/img/tcg_card_back.jpg'),
+                          image: NetworkImage(
+                            'https://plpstore.com.br/img/produtos/${widget.data.imagem}',
+                          ),
+                          fit: BoxFit.cover,
+                          imageErrorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/img/tcg_card_back.jpg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          left: 10,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.green.withOpacity(0.6),
+                            ),
+                            child: Text(
+                              'Reverse',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    width * 0.04, // Ajusta o tamanho do texto
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      'R\$${precoFormat}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: width * 0.08, // Ajusta o tamanho do texto
+                      ),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Estq.: ${widget.data.estoque.toString()}',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: width * 0.08, // Ajusta o tamanho do texto
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Card(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () => _decrementQuantity(context),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.minus,
+                              color: Colors.red,
+                            ),
+                          ),
+                          Text(addCar.toString()),
+                          IconButton(
+                            onPressed: () => _incrementQuantity(context),
+                            icon: const FaIcon(
+                              FontAwesomeIcons.plus,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                      child: Container(
+                        child: RawMaterialButton(
+                          onPressed: () {
+                            if (widget.data.estoque == addCar) {
+                              messageFail(context);
+                            } else if (int.parse(widget.data.estoque) <= 0) {
+                              messageFail(context);
+                            } else {
+                              cart.addItemMax(widget.data, addCar);
+                              messageSuccess(context, cart);
+                            }
+                          },
+                          elevation: 2,
+                          fillColor: int.parse(widget.data.estoque) <= 0
+                              ? Colors.grey
+                              : Colors.green,
+                          child: const FaIcon(
+                            FontAwesomeIcons.cartShopping,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          padding: EdgeInsets.all(
+                              width * 0.03), // Ajusta o padding do botão
+                          shape: const CircleBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

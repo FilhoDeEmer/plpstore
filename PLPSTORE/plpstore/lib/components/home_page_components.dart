@@ -79,11 +79,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
     return CarouselSlider(
       options: CarouselOptions(
-        height: 280,
-        autoPlay: true,
+        height: MediaQuery.of(context).size.height * 0.35,
+        autoPlay: false,
         enlargeCenterPage: true,
         aspectRatio: 16 / 9,
-        autoPlayCurve: Curves.ease,
+        autoPlayCurve: Curves.easeInOut,
         enableInfiniteScroll: true,
         autoPlayAnimationDuration: const Duration(milliseconds: 800),
         viewportFraction: 0.8,
@@ -112,20 +112,30 @@ class _PrincipalPageState extends State<PrincipalPage> {
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
                       'https://plpstore.com.br/img/produtos/$imgUrl',
-                      width: MediaQuery.of(context).size.width,
-                      height: 180,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.height * 0.2,
                       fit: BoxFit.scaleDown,
                     ),
                   ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   Text(nome,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.width * 0.04)),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text('R\$ $valor',
-                          style: const TextStyle(color: Colors.green)),
+                          style: TextStyle(
+                              color: Colors.green,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04)),
                       Text('UN.:$estoque',
-                          style: const TextStyle(color: Colors.grey)),
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.04)),
                     ],
                   ),
                 ],
@@ -139,6 +149,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
+    final deviceHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -146,11 +158,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(deviceWidth * 0.02),
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: 200,
-                  autoPlay: true,
+                  height: deviceHeight * 0.2,
+                  autoPlay: false,
                   enlargeCenterPage: true,
                   aspectRatio: 16 / 9,
                   autoPlayCurve: Curves.fastOutSlowIn,
@@ -164,10 +176,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
                       return Stack(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width,
-                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                            width: deviceWidth,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: deviceWidth * 0.02),
                             decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 255, 255, 255),
+                              color: Colors.white,
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8.0),
@@ -182,8 +195,9 @@ class _PrincipalPageState extends State<PrincipalPage> {
                             right: 0,
                             left: 0,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: deviceWidth * 0.02,
+                                  vertical: deviceHeight * 0.01),
                               child: ElevatedButton(
                                 onPressed: () {
                                   _onImageTap(imgUrl);
@@ -199,16 +213,17 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 }).toList(),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 80, vertical: 10),
-              child: Divider(
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: deviceWidth * 0.1, vertical: deviceHeight * 0.02),
+              child: const Divider(
                 color: Color.fromRGBO(212, 175, 55, 1),
                 height: 1,
                 thickness: 3,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(deviceWidth * 0.03),
               child: const Text(
                 'Produtos em Destaque',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -231,17 +246,21 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 }
               },
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 80, vertical: 10),
-              child: Divider(
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: deviceWidth * 0.1, vertical: deviceHeight * 0.02),
+              child: const Divider(
                 color: Color.fromRGBO(212, 175, 55, 1),
                 height: 1,
                 thickness: 3,
               ),
             ),
-            const Text(
-              'Novidades Pokémon',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.all(deviceWidth * 0.03),
+              child: const Text(
+                'Novidades Pokémon',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             FutureBuilder<List<Product>>(
               future: _allProduct,
@@ -259,17 +278,21 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 }
               },
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 80, vertical: 10),
-              child: Divider(
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: deviceWidth * 0.1, vertical: deviceHeight * 0.02),
+              child: const Divider(
                 color: Color.fromRGBO(212, 175, 55, 1),
                 height: 1,
                 thickness: 3,
               ),
             ),
-            const Text(
-              'Novidades Treinador',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.all(deviceWidth * 0.03),
+              child: const Text(
+                'Novidades Treinador',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             FutureBuilder<List<Product>>(
               future: _allProduct,

@@ -101,7 +101,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
             : Column(
                 children: [
                   Text(
-                    '*Pagamentos via PIX podem demorar para ser processado, caso já tenha feito o pagamento mas ainda não foi processado entre em contato',
+                    '*Pagamentos via PIX podem demorar para ser processados, caso já tenha feito o pagamento mas ainda não foi alterado entre em contato',
                     style: TextStyle(fontSize: 10),
                   ),
                   Expanded(

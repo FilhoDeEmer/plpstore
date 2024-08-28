@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:plpstore/components/pokeball_loading.dart';
 import 'package:plpstore/model/gerar_pedido.dart';
-import 'package:plpstore/utils/app_routes.dart';
 
 class OrderDetailPage extends StatefulWidget {
   const OrderDetailPage({super.key});
@@ -54,12 +54,14 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       _currentPage++;
       if (nextItems.isEmpty) {
         _hasMore = false;
-      } else {
-        pedidos = [...pedidos, ...nextItems];
       }
+      // Adiciona mais itens, se houver
+      pedidos = [...pedidos];
       _isLoading = false;
     });
   }
+
+  final GerarPedido buscarPedido = GerarPedido();
 
   @override
   Widget build(BuildContext context) {
@@ -96,98 +98,183 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         padding: const EdgeInsets.all(8.0),
         child: _isLoading
             ? Center(child: PokeballLoading())
-            : ListView.builder(
-                itemCount: pedidos.length + (_hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index >= pedidos.length) {
-                    _loadData();
-                    return Center(child: PokeballLoading());
-                  }
+            : Column(
+                children: [
+                  Text(
+                    '*Pagamentos via PIX podem demorar para ser processado, caso já tenha feito o pagamento mas ainda não foi processado entre em contato',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: pedidos.length + (_hasMore ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index >= pedidos.length) {
+                          _loadData();
+                          return Center(child: PokeballLoading());
+                        }
 
-                  final pedido = pedidos[index];
-                  return Card(
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        final pedido = pedidos[index];
+                        return Card(
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
                             children: [
-                              Text('ID: ${pedido['id'].toString()}'),
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Status:',
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                      FaIcon(
-                                        _getIconForStatus(pedido).icon,
-                                        color: _getIconForStatus(pedido).color,
-                                        size: _getIconForStatus(pedido).size,
-                                      ),
-                                    ],
-                                  ),
-                                  Text(_getIconForStatus(pedido).semanticLabel!, style: TextStyle(fontSize: 8),)
-                                ],
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Total: ${pedido['total']}'),
-                              Text('Pago: ${pedido['pago']}'),
-                              if (pedido['rastreio'] != null)
-                                Text('Cod. Rastreio: ${pedido['rastreio']}'),
-                              Text(
-                                  'Data: ${formatarData(pedido['data'].toString())}'),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Implementar ação para visualizar o pedido
-                                },
-                                child: Text('Ver pedido'),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              if (pedido['pago'] == 'Não')
-                                ElevatedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              Colors.green)),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
-                                    pagarPedido(
-                                        pedido['id'].toString(),
-                                        pedido['id_usuario'].toString(),
-                                        double.parse(pedido['total']));
-                                  },
-                                  child: Text('Pagar'),
+                              ListTile(
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('ID: ${pedido['id'].toString()}'),
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Status:',
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                            FaIcon(
+                                              _getIconForStatus(pedido).icon,
+                                              color: _getIconForStatus(pedido)
+                                                  .color,
+                                              size: _getIconForStatus(pedido)
+                                                  .size,
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          _getIconForStatus(pedido)
+                                              .semanticLabel!,
+                                          style: TextStyle(fontSize: 8),
+                                        )
+                                      ],
+                                    ),
+                                  ],
                                 ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Total: ${pedido['total']}'),
+                                    Text('Pago: ${pedido['pago']}'),
+                                    if (pedido['rastreio'] != null)
+                                      Text(
+                                          'Cod. Rastreio: ${pedido['rastreio']}'),
+                                    Text(
+                                        'Data: ${formatarData(pedido['data'].toString())}'),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 16.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        verPedido(
+                                          context,
+                                          pedido['id'].toString(),
+                                          pedido['id_usuario'].toString(),
+                                          pedido['total'],
+                                        );
+                                      },
+                                      child: Text('Ver pedido'),
+                                    ),
+                                    SizedBox(width: 10),
+                                    if (pedido['pago'] == 'Não')
+                                      ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.green),
+                                        ),
+                                        onPressed: () async {
+                                          setState(() {
+                                            _isLoading = true;
+                                          });
+                                          await pagarPedido(
+                                            pedido['id'].toString(),
+                                            pedido['id_usuario'].toString(),
+                                            double.parse(pedido['total']),
+                                          );
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                        },
+                                        child: Text('Pagar'),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
       ),
+    );
+  }
+
+  Future<void> verPedido(BuildContext context, String pedidoId,
+      String idUsuario, String totalPedido) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: FittedBox(child: Text('Detalhes do Pedido: $pedidoId')),
+          content: FutureBuilder<List<Map<String, dynamic>>>(
+            future: buscarPedido.detalhesPedido(pedidoId, idUsuario),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: PokeballLoading());
+              } else if (snapshot.hasError) {
+                return Text('Erro: ${snapshot.error}');
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text(
+                    'Nenhum detalhe encontrado para este pedido.');
+              } else {
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: snapshot.data!.map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Produto: ${item['nome_produto']}'),
+                            Text('Quantidade: ${item['quantidade']}'),
+                            const SizedBox(height: 10),
+                            const Divider(),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              }
+            },
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Total: $totalPedido'),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Voltar'),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -251,12 +338,19 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     final urlPayment =
         await gerarPedido.criarPreferencia(valorTotal, idUsuario, idPedido);
     if (urlPayment['id_payment'] != 'fail') {
-      await _launchInWebViewWithoutDomStorage(urlPayment['test_init_point']!);
+      await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
     }
   }
 
   Future<void> _launchInWebViewWithoutDomStorage(String url) async {
-    Navigator.of(context).popAndPushNamed(AppRoutes.checkout, arguments: url);
+    try {
+      await launchUrl(
+        Uri.parse(url),
+      );
+    } catch (e) {
+      throw 'Não foi possível acessar $url';
+    }
+    // Navigator.of(context).pushNamed(AppRoutes.checkout, arguments: url);
   }
 
   String formatarData(String data) {

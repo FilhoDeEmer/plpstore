@@ -5,8 +5,7 @@ import 'package:plpstore/model/product.dart';
 
 class Produtos with ChangeNotifier {
   int cont = 0;
-  
-  
+
   Future<Map<String, dynamic>> allProducts() async {
     const url = 'https://plpstore.com.br/apis/api/produtos/listarProdutos.php';
     final response = await http.post(Uri.parse(url));
@@ -16,7 +15,6 @@ class Produtos with ChangeNotifier {
 
     return total;
   }
-  
 
   Future<Map<String, dynamic>> filterProducts(String term) async {
     const url = 'https://plpstore.com.br/apis/api/produtos/listarProdutos.php';
@@ -41,13 +39,11 @@ class Produtos with ChangeNotifier {
 
 class ProductProvider with ChangeNotifier {
   String lengthList = '';
-  
 
   String contarProdutos() {
     fetchAllProducts('Buscar,');
     return lengthList;
   }
-  
 
   late Future<List<Product>> _allProductsFuture;
 
@@ -66,10 +62,9 @@ class ProductProvider with ChangeNotifier {
     String nome = list[0];
 
     if (nome == 'Buscar') {
-      String termo = list[1];
       int number = 0;
 
-      final allProductsData = await Produtos().filterProducts(termo);
+      final allProductsData = await Produtos().filterProducts('');
       List<Product> productList = [];
 
       for (var item in allProductsData.values) {
@@ -104,14 +99,14 @@ class ProductProvider with ChangeNotifier {
         productList.add(product);
       }
       lengthList = productList.length.toString();
-      notifyListeners();  // Notifica os ouvintes após atualizar a lista de produtos
+      notifyListeners(); // Notifica os ouvintes após atualizar a lista de produtos
       return productList;
     }
 
     int number = 0;
     final allProductsData = await Produtos().allProducts();
     List<Product> productList = [];
-
+    print(categoria);
     for (var item in allProductsData[categoria]) {
       number += 1;
       Product product = Product(
@@ -145,6 +140,4 @@ class ProductProvider with ChangeNotifier {
     }
     return productList;
   }
-
-  
 }

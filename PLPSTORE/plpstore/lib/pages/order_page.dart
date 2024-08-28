@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:plpstore/components/pokeball_loading.dart';
@@ -32,6 +33,7 @@ class _OrderPageState extends State<OrderPage> {
   double valorTotal = 0;
   double valorPedido = 0;
   CalculadoraFrete calculadoraFrete = CalculadoraFrete();
+  bool _gerandoPedido = false;
 
   final cpfController = MaskedTextController(mask: '000.000.000-00');
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
@@ -86,7 +88,14 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Future<void> _launchInWebViewWithoutDomStorage(String url) async {
-    Navigator.of(context).popAndPushNamed(AppRoutes.checkout, arguments: url);
+    Navigator.of(context).popAndPushNamed(AppRoutes.home, arguments: 3);
+    try {
+      await launchUrl(
+        Uri.parse(url),
+      );
+    } catch (e) {
+      throw 'Não foi possível acessar $url';
+    }
   }
 
   String? _selectedState;
@@ -129,6 +138,9 @@ class _OrderPageState extends State<OrderPage> {
     });
 
     if (!_formKey.currentState!.validate() || _tipoEnvio == null) {
+      setState(() {
+        _gerandoPedido = false;
+      });
       erro = true;
       return;
     }
@@ -175,10 +187,11 @@ class _OrderPageState extends State<OrderPage> {
 
       if (saleId != null) {
         final urlPayment = await gerarPedido.criarPreferencia(
-            (valorPedido+valorFrete), userProvider.getUserId(), saleId.toString());
+            (valorPedido + valorFrete),
+            userProvider.getUserId(),
+            saleId.toString());
         if (urlPayment['id_payment'] != 'fail') {
-          await _launchInWebViewWithoutDomStorage(
-              urlPayment['test_init_point']!);
+          await _launchInWebViewWithoutDomStorage(urlPayment['init_point']!);
         }
         cart.clean();
       }
@@ -233,7 +246,7 @@ class _OrderPageState extends State<OrderPage> {
               ),
               body: _isLoading
                   ? Center(
-                      child: PokeballLoading(), // Indicador de carregamento
+                      child: PokeballLoading(),
                     )
                   : LayoutBuilder(
                       builder: (context, constraints) {
@@ -469,28 +482,30 @@ class _OrderPageState extends State<OrderPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _isLoading = true;
-                        });
-                        _finalizarPedido(cart, userPovider);
-                      },
-                      style: const ButtonStyle(
-                        backgroundColor:
-                            MaterialStatePropertyAll<Color>(Colors.green),
-                        padding: MaterialStatePropertyAll(
-                          EdgeInsets.symmetric(vertical: 6),
-                        ),
-                      ),
-                      child: const Text(
-                        'Finalizar',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    child: _gerandoPedido
+                        ? PokeballLoading()
+                        : ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _gerandoPedido = true;
+                              });
+                              _finalizarPedido(cart, userPovider);
+                            },
+                            style: const ButtonStyle(
+                              backgroundColor:
+                                  MaterialStatePropertyAll<Color>(Colors.green),
+                              padding: MaterialStatePropertyAll(
+                                EdgeInsets.symmetric(vertical: 6),
+                              ),
+                            ),
+                            child: const Text(
+                              'Finalizar',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                   ),
                 ),
               ],

@@ -25,7 +25,7 @@ class _ProductGridState extends State<ProductGrid> {
   bool energia = false;
   bool emEstoque = false;
   late Future<List<Product>> _allProductsFuture;
-  final TextEditingController _searchController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
   int itemsPerPage = itemsPerPageOptions.first;
   int currentPage = 1;
   bool _isSearchVisible = true;
@@ -34,7 +34,8 @@ class _ProductGridState extends State<ProductGrid> {
   @override
   void initState() {
     super.initState();
-
+    String? paramns = widget.colecao;
+    List<String> list = paramns.split(',');
     final productProvider =
         Provider.of<ProductProvider>(context, listen: false);
     _allProductsFuture =
@@ -42,6 +43,12 @@ class _ProductGridState extends State<ProductGrid> {
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    print(widget.colecao);
+    if (list[0] == 'Buscar') {
+      String term = list[1];
+      _searchController.text = term;
+      searchTerm = term;
+    }
   }
 
   @override
@@ -95,14 +102,29 @@ class _ProductGridState extends State<ProductGrid> {
 
   List<Product> _applyFilters(List<Product> products) {
     if (energia) {
+      if (emEstoque) {
+        products = products
+            .where((product) => int.parse(product.estoque) > 0)
+            .toList();
+      }
       products = products
           .where((product) => product.subCategoriaNome.contains('Energia'))
           .toList();
     } else if (pokemon) {
+      if (emEstoque) {
+        products = products
+            .where((product) => int.parse(product.estoque) > 0)
+            .toList();
+      }
       products = products
           .where((product) => product.subCategoriaNome.contains('Pokemon'))
           .toList();
     } else if (treinador) {
+      if (emEstoque) {
+        products = products
+            .where((product) => int.parse(product.estoque) > 0)
+            .toList();
+      }
       products = products
           .where((product) => product.subCategoriaNome.contains('Treinador'))
           .toList();
@@ -219,6 +241,7 @@ class _ProductGridState extends State<ProductGrid> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    const Text('Em estoque'),
                     Checkbox(
                       checkColor: Colors.white,
                       value: emEstoque,
@@ -229,7 +252,6 @@ class _ProductGridState extends State<ProductGrid> {
                         });
                       },
                     ),
-                    const Text('Em estoque'),
                     const Text('Produtos por página'),
                     DropdownButton<int>(
                       value: itemsPerPage,
@@ -254,13 +276,12 @@ class _ProductGridState extends State<ProductGrid> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     double maxCrossAxisExtent = constraints.maxWidth / 2;
-                    // Obtém a altura da tela.
                     double screenHeight = MediaQuery.of(context).size.height;
-                    // Define a altura de cada item do grid. Você pode ajustar isso conforme necessário.
-                    double itemHeight =
-                        screenHeight / (paginatedProducts.length / 9);
-                    // Calcula o childAspectRatio com base na altura e largura do item.
-                    double childAspectRatio = maxCrossAxisExtent / itemHeight;
+
+                    //double itemHeight =
+                    screenHeight / (paginatedProducts.length / 9);
+
+                    //double childAspectRatio = maxCrossAxisExtent / itemHeight;
 
                     return GridView.builder(
                       controller: _scrollController,
@@ -268,7 +289,7 @@ class _ProductGridState extends State<ProductGrid> {
                       itemCount: paginatedProducts.length,
                       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: maxCrossAxisExtent,
-                        childAspectRatio: childAspectRatio,
+                        childAspectRatio: 0.64,
                         crossAxisSpacing: 5,
                         mainAxisSpacing: 5,
                       ),

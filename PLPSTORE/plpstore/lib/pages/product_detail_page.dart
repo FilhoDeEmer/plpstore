@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:plpstore/components/bottom_navigator.dart';
 import 'package:plpstore/model/calculadora_frete.dart';
 import 'package:plpstore/model/cart.dart';
 import 'package:plpstore/model/product.dart';
@@ -57,7 +56,7 @@ class _ProductDetailState extends State<ProductDetail> {
           icon: const FaIcon(FontAwesomeIcons.arrowLeft),
           onPressed: () {
             Navigator.of(context)
-                .pushReplacementNamed(AppRoutes.home, arguments: 1);
+                .pop();
           },
         ),
       ),
@@ -239,16 +238,16 @@ class _ProductDetailState extends State<ProductDetail> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigator(
-        currentIndex: 1,
-        onTap: (int i) {
-          setState(() {
-            index = i;
-          });
-          _navigateToPage(i, context);
-        },
-        cartItemCount: cart.itemsCount,
-      ),
+      // bottomNavigationBar: BottomNavigator(
+      //   currentIndex: 1,
+      //   onTap: (int i) {
+      //     setState(() {
+      //       index = i;
+      //     });
+      //     _navigateToPage(i, context);
+      //   },
+      //   cartItemCount: cart.itemsCount,
+      // ),
     );
   }
 

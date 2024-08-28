@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:plpstore/utils/app_routes.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentPage extends StatelessWidget {
@@ -20,8 +19,7 @@ class PaymentPage extends StatelessWidget {
             return IconButton(
               icon: const FaIcon(FontAwesomeIcons.arrowLeft),
               onPressed: () {
-                Navigator.of(context)
-                    .popAndPushNamed(AppRoutes.home, arguments: 3);
+                Navigator.of(context).pop();
               },
               tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
             );

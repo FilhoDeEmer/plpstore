@@ -34,13 +34,18 @@ class CartItemWidget extends StatelessWidget {
             title: const Text('Tem Certeza?'),
             content: const Text('Quer remover o item do carrinho?'),
             actions: [
-              TextButton(
-                child: const Text('Não'),
-                onPressed: () => Navigator.of(ctx).pop(false),
-              ),
-              TextButton(
-                child: const Text('Sim'),
-                onPressed: () => Navigator.of(ctx).pop(true),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    child: const Text('Não'),
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                  ),
+                  ElevatedButton(
+                    child: const Text('Sim'),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                  ),
+                ],
               ),
             ],
           ),
@@ -56,15 +61,19 @@ class CartItemWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Row(
             children: [
-              ClipOval(
-                child: Image.network(
-                  "https://plpstore.com.br/img/produtos/${cartItem.image}",
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
+              Container(
+                width: 50,
+                height: 75,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        "https://plpstore.com.br/img/produtos/${cartItem.image}"),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              const SizedBox(width: 10), 
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

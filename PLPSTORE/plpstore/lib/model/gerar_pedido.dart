@@ -20,10 +20,11 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
-  Future<Map<String, String>> criarPreferencia(double price, String id_user, String id_venda) async {
-    String  idProduct = id_user + id_venda;
+  Future<Map<String, String>> criarPreferencia(
+      double price, String id_user, String id_venda) async {
+    String idProduct = id_user + id_venda;
     const String url = 'https://plpstore.com.br/apiEmerson/preference.php';
-    try {      
+    try {
       final response = await http.post(
         Uri.parse(url),
         headers: {
@@ -32,8 +33,8 @@ class GerarPedido with ChangeNotifier {
         body: jsonEncode({
           'id': idProduct,
           'unit_price': price,
-          'id_user' : id_user,
-          'id_venda' : id_venda
+          'id_user': id_user,
+          'id_venda': id_venda
         }),
       );
       if (response.statusCode == 200) {
@@ -60,6 +61,25 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
+  Future<List<Map<String, dynamic>>> detalhesPedido(
+      String pedido, String idUsuario) async {
+    String url =
+        'https://plpstore.com.br/apis/api/vendas/vendasClientesProdutos.php?idUsuario=$idUsuario&idVenda=$pedido';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      final responseData = jsonDecode(response.body);
+
+      if (responseData['code'] == 1) {
+        return List<Map<String, dynamic>>.from(responseData['result']);
+      } else {
+        throw Exception('Falha ao buscar detalhes do pedido.');
+      }
+    } catch (e) {
+      throw Exception('Erro ao processar a solicitação: $e');
+    }
+  }
+
   // Future<void> verificarpagamento(String id) async {
   //   String url = 'https://api.mercadopago.com/v1/payments/$id';
 
@@ -71,5 +91,4 @@ class GerarPedido with ChangeNotifier {
   //   } else {
   //   }
   // }
-
 }

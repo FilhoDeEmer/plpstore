@@ -98,7 +98,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
           builder: (BuildContext context) {
             return GestureDetector(
               onTap: () {
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ProductDetail(
                       data: product,
@@ -139,6 +139,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

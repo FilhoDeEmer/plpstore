@@ -50,23 +50,18 @@ class CalculadoraFrete {
               try {
                 return double.parse(frete['price'].toString()) + 5.00;
               } catch (e) {
-                //print('Erro ao converter o preço: $e');
                 return 22.0; // Valor padrão ou tratamento adequado em caso de erro
               }
             } else {
-              //print('Campo "price" não encontrado ou não é uma String');
               return 22.0; // Valor padrão ou tratamento adequado
             }
           } else {
-            //print('Objeto "frete" é nulo ou não é um Map<String, dynamic>');
             return 22.0; // Valor padrão ou tratamento adequado
           }
         } else {
-          //print('Falha na requisição: ${response.statusCode}');
           return 22.0;
         }
       } catch (e) {
-        //print('Erro ao calcular frete: $e');
         return 22.0;
       }
     }

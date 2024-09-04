@@ -254,7 +254,6 @@ class _ProductDetailState extends State<ProductDetail> {
                                   valorFrete = valor;
                                 });
                               } catch (e) {
-                                print('Erro ao calcular frete: $e');
                               }
                             },
                           ),

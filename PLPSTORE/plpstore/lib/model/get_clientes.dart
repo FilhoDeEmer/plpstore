@@ -103,15 +103,12 @@ class GetCliente with ChangeNotifier {
         if (responseData['code'] == 1) {
           return responseData['result'] as List<dynamic>;
         } else {
-          print('Erro na resposta: ${responseData['message']}');
           return [];
         }
       } else {
-        print('Erro na solicitação: ${response.statusCode}');
         return [];
       }
     } catch (error) {
-      print('Erro ao buscar pedidos: $error');
       return [];
     }
   }

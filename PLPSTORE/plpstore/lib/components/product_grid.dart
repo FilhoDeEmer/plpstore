@@ -43,7 +43,6 @@ class _ProductGridState extends State<ProductGrid> {
 
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-    print(widget.colecao);
     if (list[0] == 'Buscar') {
       String term = list[1];
       _searchController.text = term;

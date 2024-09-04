@@ -106,7 +106,6 @@ class ProductProvider with ChangeNotifier {
     int number = 0;
     final allProductsData = await Produtos().allProducts();
     List<Product> productList = [];
-    print(categoria);
     for (var item in allProductsData[categoria]) {
       number += 1;
       Product product = Product(

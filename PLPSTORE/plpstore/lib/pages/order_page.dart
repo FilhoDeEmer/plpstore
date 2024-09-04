@@ -78,7 +78,6 @@ class _OrderPageState extends State<OrderPage> {
       }
     } catch (e) {
       // Handle error
-      print('Erro ao carregar dados do cliente: $e');
     } finally {
       // Garanta que _isLoading seja definido como false quando a carga for concluída
       setState(() {
@@ -165,8 +164,6 @@ class _OrderPageState extends State<OrderPage> {
       final dateFormat = DateFormat('dd-MM-yyyy-HH:mm:ss');
       final sessao = '${dateFormat.format(now)}-$randomNumber';
 
-      print(valorFrete);
-      print(valorPedido);
 
       final Map<String, dynamic> pedido = {
         'id_user': userProvider.getUserId(),
@@ -196,7 +193,6 @@ class _OrderPageState extends State<OrderPage> {
         cart.clean();
       }
     } catch (e) {
-      print('Erro ao finalizar pedido: $e');
     } finally {
       setState(() {
         _isLoading = false;
@@ -605,7 +601,6 @@ class _OrderPageState extends State<OrderPage> {
                     valorTotal = (double.parse(valorCompra) + valorFrete);
                   });
                 } catch (e) {
-                  //print('Erro ao calcular frete: $e');
                   setState(() {
                     valorFrete =
                         0.0; // Defina um valor padrão ou trate o erro adequadamente

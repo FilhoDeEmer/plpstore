@@ -20,6 +20,11 @@ class CategoryPage extends StatelessWidget {
           children: [
             _buildCategoryCard(
               context,
+              'Coroa Estelar',
+              'assets/img/coroa_estelar_baner.png',
+            ),
+            _buildCategoryCard(
+              context,
               'Mascaras do Crepúsculo',
               'assets/img/mascaras_colecao.jpg',
             ),

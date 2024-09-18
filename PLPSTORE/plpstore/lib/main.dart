@@ -47,11 +47,9 @@ class MyApp extends StatelessWidget {
             seedColor: Color.fromRGBO(165, 143, 43, 1), // Cor principal
             primary: Color.fromRGBO(255, 238, 6, 1), // Cor principal
             secondary: Color.fromARGB(255, 248, 147, 31), // Cor secundária
-            background: Color.fromARGB(255, 255, 255, 255), // Cor de fundo
             surface: Color.fromARGB(255, 248, 248, 248), // Cor de superfície
             onPrimary: Colors.white, // Cor do texto sobre a cor primária
             onSecondary: Colors.black, // Cor do texto sobre a cor secundária
-            onBackground: Colors.black, // Cor do texto sobre o fundo
             onSurface: Colors.black, // Cor do texto sobre a superfície
             error: Colors.redAccent,
             tertiary: Color.fromRGBO(165, 143, 43, 1), // Cor para erros

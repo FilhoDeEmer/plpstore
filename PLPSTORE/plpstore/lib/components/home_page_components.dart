@@ -53,6 +53,9 @@ class _PrincipalPageState extends State<PrincipalPage> {
   void _onImageTap(String imgUrl) {
     String page;
     switch (imgUrl) {
+      case 'assets/img/coroa_estelar.png':
+        page = 'Coroa Estelar';
+        break;
       case 'assets/img/sv06_logo_nav.png':
         page = 'Mascaras do Crepúsculo';
         break;
@@ -317,6 +320,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
   }
 
   final List<String> carouselImg = [
+    'assets/img/coroa_estelar.png',
     'assets/img/sv06_logo_nav.png',
     'assets/img/sv04_logo_nav.png',
     'assets/img/sv04pt5_logo_nav.png',

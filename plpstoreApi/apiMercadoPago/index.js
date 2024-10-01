@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.get("/create-preference", async (req, res) => {
-  // essa api pode inserir os dados na tabela venda ou o proprio app pode fazer isso antes, e só chamar essa api apos criar os dados no banco com sucesso e depois passa os dados para criar a preferencia
+  // essa api pode inserir os dados na tabela venda ou o proprio app pode fazer isso antes, e só chamar essa api apos criar os dados no banco com sucesso e depois passa os dados para criar a preferencia : ideia
 
   const data = req.query;
   try {

@@ -1,7 +1,7 @@
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 const client = new MercadoPagoConfig({
   accessToken:
-    "APP_USR-6558376728906994-041714-06373b57e10b878abe198ed0914acf09-1728049498",
+    "",
   options: { timeout: 5000, idempotencyKey: "abc" },
 });
 
@@ -20,9 +20,9 @@ const  createPreference = async(data) => {
       },
     ],
     back_urls: {
-      success: "http://192.168.1.8:3000/pagamento-aprovado",
-      failure: "http://192.168.1.8:3000/aguardando-pagamento",
-      pending: "http://192.168.1.8:3000/aguardando-pagamento",
+      success: "http://url/pagamento-aprovado",
+      failure: "http://url/aguardando-pagamento",
+      pending: "http://url/aguardando-pagamento",
     },
     expires: false,
     auto_return: "all",
@@ -45,4 +45,3 @@ module.exports = {
 };
 
 
-// http://192.168.1.8:3000/pagamento-aprovado?collection_id=82687067905&collection_status=approved&payment_id=82687067905&status=approved&external_reference=null&payment_type=credit_card&merchant_order_id=20829679879&preference_id=1728049498-b3fe9624-1f68-48ac-a623-166bcdf36b4b&site_id=MLB&processing_mode=aggregator&merchant_account_id=null

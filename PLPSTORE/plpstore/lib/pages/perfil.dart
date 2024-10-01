@@ -76,7 +76,7 @@ class _PerfilPageState extends State<PerfilPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
                 child:
-                    PokeballLoading()); // Indicador de carregamento para dados do usuário
+                    PokeballLoading()); 
           } else if (snapshot.hasError) {
             return Center(child: Text('Erro ao carregar dados'));
           } else {

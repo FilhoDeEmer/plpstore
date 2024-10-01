@@ -21,12 +21,7 @@ class _ColecaoEditPageState extends State<ColecaoEditPage> {
   }
 
   final Map<String, String> imageUrls = {
-    'Destinos de Paldea': 'https://plpstore.com.br/img/categorias/16-04-2024-19-34-58-sv04pt5-logo-nav.png',
-    'Forças Temporais': 'https://plpstore.com.br/img/categorias/16-04-2024-19-33-58-sv5-logo.png',
-    'Fenda Paradoxal': 'https://plpstore.com.br/img/categorias/21-04-2024-15-34-00-fenda.png',
-    'Escarlate e Violeta 151': 'https://plpstore.com.br/img/categorias/17-04-2024-10-03-26-151.png',
-    'Produtos Fechados': 'https://plpstore.com.br/img/categorias/30-04-2024-11-37-40-boosters.png',
-    'Mascaras do Crepusculo': 'https://plpstore.com.br/img/categorias/31-05-2024-10-17-54-MascaraCorreta.png',
+    '' : '',//lista com nome da imagem e url
   };
 
   @override

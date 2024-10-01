@@ -9,7 +9,7 @@ class PaymentPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verifique se a URL é nula ou vazia
+    
     final String initialUrl =
         ModalRoute.of(context)?.settings.arguments as String;
     return Scaffold(

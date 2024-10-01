@@ -68,7 +68,7 @@ class CartItemWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                   image: DecorationImage(
                     image: NetworkImage(
-                        "https://plpstore.com.br/img/produtos/${cartItem.image}"),
+                        "caminho da imagem"),
                     fit: BoxFit.cover,
                   ),
                 ),

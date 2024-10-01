@@ -4,21 +4,21 @@ class Badgee extends StatelessWidget {
   final Widget child;
   final String value;
   final Color? color;
-  final Color? textColor; // Adiciona a cor do texto
+  final Color? textColor; 
 
   const Badgee({
     Key? key,
     required this.child,
     required this.value,
     this.color,
-    this.textColor, // Adiciona a cor do texto no construtor
+    this.textColor, 
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
-      alignment: Alignment.topCenter, // Centraliza horizontalmente
+      alignment: Alignment.topCenter, 
       children: [
         child,
         if (value.isNotEmpty && int.tryParse(value) != null && int.parse(value) > 0)

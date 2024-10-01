@@ -22,7 +22,7 @@ class Auth with ChangeNotifier {
     String nome,
     String cpf,
   ) async {
-    const url = 'https://plpstore.com.br/apis/api/usuarios/inserir.php';
+    const url = 'URL para inserir usuário';
     final response = await http.post(Uri.parse(url), body: {
       'nome': nome,
       'email': email,
@@ -45,7 +45,7 @@ class Auth with ChangeNotifier {
     String password,
   ) async {
     final response = await http.post(
-      Uri.parse("https://plpstore.com.br/apis/api/login/login.php"),
+      Uri.parse("URL de login"),
       body: {
         'email': email,
         'senha': password,
@@ -79,7 +79,7 @@ class Auth with ChangeNotifier {
 
   Future<String> recuperarSenha(String email, String cpf) async {
     String url =
-        'https://plpstore.com.br/apis/api/usuarios/recuperarSenha.php?emailUsuario=${email}&cpfUsuario=${cpf}';
+        'URL de recuperação de senha';
     final response = await http.post(Uri.parse(url), body: {});
     Map<String, dynamic> responseData = jsonDecode(response.body);
     if (responseData['code'] == 1) {
@@ -95,14 +95,14 @@ class Auth with ChangeNotifier {
         'service_4bd585m',
         'template_upxlnrg',
         {
-          'to_email': 'eme_silva_bezerra@hotmail.com',
+          'to_email': 'email@email.com',
           'message': 'Senha: ${send}',
           'notes': 'PLP Store',
           'from_name': 'PLP Store'
         },
         const emailjs.Options(
-            publicKey: '_dbUvBL9mkaEm_qtH',
-            privateKey: 'fnO-Ed2Cv40A2uvMEFlzG',
+            publicKey: '*',
+            privateKey: '*',
             limitRate: const emailjs.LimitRate(
               id: 'app',
               throttle: 10000,

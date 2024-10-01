@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:plpstore/components/badgee.dart'; // Certifique-se de que este caminho está correto
-
+import 'package:plpstore/components/badgee.dart'; 
 class BottomNavigator extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;

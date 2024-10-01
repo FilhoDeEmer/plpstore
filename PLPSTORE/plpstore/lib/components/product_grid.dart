@@ -272,16 +272,15 @@ class _ProductGridState extends State<ProductGrid> {
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           double maxCrossAxisExtent = constraints.maxWidth /
-                              2; // Define a largura máxima do item
+                              2;
                           double screenHeight = MediaQuery.of(context)
                               .size
-                              .height; // Obtém a altura da tela
+                              .height; 
 
-                          // Calcula a altura de cada item do grid com base na altura da tela e no número de itens por página
+                       
                           double itemHeight =
                               screenHeight / (paginatedProducts.length / 9);
 
-                          // Calcula a razão de aspecto para os itens do grid
                           double childAspectRatio =
                               maxCrossAxisExtent / itemHeight;
 

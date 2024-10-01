@@ -277,7 +277,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       },
     );
   }
-
+//verificar os status reais de pedidos
   FaIcon _getIconForStatus(dynamic status) {
     switch (status['status']) {
       case 'Retirada':
@@ -350,7 +350,6 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     } catch (e) {
       throw 'Não foi possível acessar $url';
     }
-    // Navigator.of(context).pushNamed(AppRoutes.checkout, arguments: url);
   }
 
   String formatarData(String data) {

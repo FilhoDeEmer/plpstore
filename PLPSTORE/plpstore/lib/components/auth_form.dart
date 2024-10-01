@@ -283,11 +283,11 @@ class _AuthFormState extends State<AuthForm> {
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     if (_rememberMe) {
-      await prefs.setBool('rememberMe', true); // Corrigido o nome da chave
+      await prefs.setBool('rememberMe', true);
       await prefs.setString('email', _emailController.text);
       await prefs.setString('password', _passwordController.text);
     } else {
-      await prefs.remove('rememberMe'); // Corrigido o nome da chave
+      await prefs.remove('rememberMe');
       await prefs.remove('email');
       await prefs.remove('password');
     }

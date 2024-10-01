@@ -147,7 +147,7 @@ class _ComboEditState extends State<ComboEdit> {
                     _cTipoEnvio.text.isNotEmpty ? _cTipoEnvio.text : null,
                 items:
                     tipoEnvio.entries.map((MapEntry<String, String> entry) {
-                  // quando voce descobrir, replicar em categoria e sub categoria
+                  
                   return DropdownMenuItem(
                     value: entry.key,
                     child: Text(entry.value),

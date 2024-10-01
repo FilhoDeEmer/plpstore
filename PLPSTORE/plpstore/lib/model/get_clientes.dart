@@ -21,7 +21,7 @@ class GetCliente with ChangeNotifier {
   }
 
   Future<void> pegaClients(String cpf) async {
-    const url = 'https://plpstore.com.br/apis/api/login/clientes.php';
+    const url = '';
     final response = await http.post(Uri.parse(url), body: {'cpf': cpf});
     final responseData = jsonDecode(response.body);
 
@@ -54,7 +54,7 @@ class GetCliente with ChangeNotifier {
   }
 
   Future<void> vendasClients(String idUser) async {
-    const url = 'https://plpstore.com.br/apis/api/vendas/vendasClientes.php';
+    const url = '';
     final response =
         await http.post(Uri.parse(url), body: {'idUsuario': idUser});
     final responseData = jsonDecode(response.body);
@@ -66,7 +66,7 @@ class GetCliente with ChangeNotifier {
   }
 
   Future<void> atualizarCliente(Cliente cliente) async {
-    const url = 'https://plpstore.com.br/apis/api/usuarios/atualizar.php';
+    const url = '';
     final response = await http.post(Uri.parse(url), body: {
       'nome': cliente.nome,
       'email': cliente.email,
@@ -92,7 +92,7 @@ class GetCliente with ChangeNotifier {
 
   Future<List<dynamic>> pegarPedidos(String idCliente) async {
     final String url =
-        'https://plpstore.com.br/apis/api/vendas/vendasClientes.php?idUsuario=$idCliente';
+        '';
 
     try {
       final response = await http.post(Uri.parse(url));

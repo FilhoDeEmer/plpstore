@@ -93,8 +93,7 @@ class _ComboAddProductState extends State<ComboAddProduct> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: PokeballLoading());
-          // } else if (snapshot.hasError ) {
-          //   return Center(child: Text(snapshot.error.toString())); tem que retornar quandso for fazer teste, mas acho que não vai mais precisar
+
         } else if (!snapshot.hasData ||
             snapshot.data!.isEmpty ||
             snapshot.hasError) {

@@ -47,7 +47,7 @@ class _OrderPageState extends State<OrderPage> {
   final observacaoController = TextEditingController();
   final numeroController = TextEditingController();
 
-  bool _isLoading = true; // Inicialmente, o carregamento está ativo
+  bool _isLoading = true; 
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class _OrderPageState extends State<OrderPage> {
     } catch (e) {
       // Handle error
     } finally {
-      // Garanta que _isLoading seja definido como false quando a carga for concluída
+
       setState(() {
         _isLoading = false;
       });
@@ -297,23 +297,23 @@ class _OrderPageState extends State<OrderPage> {
                       height: 1,
                       thickness: 1,
                       color:
-                          Colors.grey.shade300), // Divisores com altura menor
+                          Colors.grey.shade300), 
                   itemBuilder: (ctx, i) {
                     final item = items[i];
                     return ListTile(
                       contentPadding: EdgeInsets.symmetric(
                           horizontal:
-                              8.0), // Reduz o padding interno do ListTile
+                              8.0), 
                       title: Text(item.name,
                           style: TextStyle(
                               fontSize:
-                                  14)), // Ajusta o tamanho da fonte para reduzir o espaço
+                                  14)), 
                       leading: Text('${item.quantity}x',
                           style: TextStyle(
-                              fontSize: 14)), // Ajusta o tamanho da fonte
+                              fontSize: 14)), 
                       trailing: Text(item.price.toStringAsFixed(2),
                           style: TextStyle(
-                              fontSize: 14)), // Ajusta o tamanho da fonte
+                              fontSize: 14)), 
                     );
                   },
                 ),
@@ -574,7 +574,7 @@ class _OrderPageState extends State<OrderPage> {
           child: DropdownButtonFormField<String>(
             decoration: InputDecoration(
               labelText: 'Tipo de Envio',
-              errorText: _envioError, // Exibe mensagem de erro, se houver
+              errorText: _envioError, 
             ),
             hint: const Text('Selecione o tipo de envio'),
             value: _tipoEnvio,
@@ -594,7 +594,7 @@ class _OrderPageState extends State<OrderPage> {
                   final valor = await calculadoraFrete.calcularFrete(
                     cepController.text,
                     valorTotal.toString(),
-                    _tipoEnvio!, // Use o valor selecionado
+                    _tipoEnvio!, 
                   );
                   setState(() {
                     valorFrete = valor;
@@ -603,9 +603,9 @@ class _OrderPageState extends State<OrderPage> {
                 } catch (e) {
                   setState(() {
                     valorFrete =
-                        0.0; // Defina um valor padrão ou trate o erro adequadamente
+                        0.0; 
                     _envioError =
-                        'Não foi possível calcular o frete'; // Exiba mensagem de erro se necessário
+                        'Não foi possível calcular o frete'; 
                   });
                 }
               }

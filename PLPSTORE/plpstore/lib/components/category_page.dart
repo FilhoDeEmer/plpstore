@@ -12,10 +12,10 @@ class CategoryPage extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: GridView(
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 300, // Largura máxima do item
-            childAspectRatio: 3 / 2, // Razão de aspecto do item
-            crossAxisSpacing: 10, // Espaçamento entre colunas
-            mainAxisSpacing: 10, // Espaçamento entre linhas
+            maxCrossAxisExtent: 300, 
+            childAspectRatio: 3 / 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10, 
           ),
           children: [
             _buildCategoryCard(

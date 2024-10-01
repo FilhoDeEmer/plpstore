@@ -114,7 +114,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      'https://plpstore.com.br/img/produtos/$imgUrl',
+                      'URL da imegem',
                       width: MediaQuery.of(context).size.width * 0.8,
                       height: MediaQuery.of(context).size.height * 0.2,
                       fit: BoxFit.scaleDown,

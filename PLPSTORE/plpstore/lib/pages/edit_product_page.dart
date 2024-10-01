@@ -253,7 +253,6 @@ class _EditProductPageState extends State<EditProductPage> {
                           subtitle: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              // Text(product.categoriaNome),
                               Row(
                                 children: [
                                   const Text('Qnt.:'),

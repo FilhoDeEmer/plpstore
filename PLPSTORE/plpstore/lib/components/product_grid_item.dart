@@ -32,11 +32,11 @@ class _ProductGridItemState extends State<ProductGridItem> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           double width = constraints.maxWidth;
-          double height = width * 1.33; // Mantém a razão de aspecto do item
+          double height = width * 1.33;
           double imageHeight =
-              height * 0.6; // Proporção da altura da imagem em relação ao total
-          double textSize = width * 0.08; // Ajusta o tamanho do texto
-          double padding = width * 0.02; // Ajusta o padding
+              height * 0.6; 
+          double textSize = width * 0.08; 
+          double padding = width * 0.02; 
 
           return Container(
             padding:
@@ -82,7 +82,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                           placeholder:
                               const AssetImage('assets/img/tcg_card_back.jpg'),
                           image: NetworkImage(
-                            'https://plpstore.com.br/img/produtos/${widget.data.imagem}',
+                            'URL da imagem',
                           ),
                           fit: BoxFit.cover,
                           imageErrorBuilder: (context, error, stackTrace) {
@@ -106,7 +106,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize:
-                                    width * 0.04, // Ajusta o tamanho do texto
+                                    width * 0.04,
                               ),
                             ),
                           ),
@@ -122,7 +122,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: width * 0.08, // Ajusta o tamanho do texto
+                        fontSize: width * 0.08,
                       ),
                     ),
                     Spacer(),
@@ -131,7 +131,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: width * 0.08, // Ajusta o tamanho do texto
+                        fontSize: width * 0.08,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
@@ -185,7 +185,7 @@ class _ProductGridItemState extends State<ProductGridItem> {
                             color: Colors.white,
                           ),
                           padding: EdgeInsets.all(
-                              width * 0.03), // Ajusta o padding do botão
+                              width * 0.03), 
                           shape: const CircleBorder(),
                         ),
                       ),

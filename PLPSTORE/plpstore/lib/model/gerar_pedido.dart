@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class GerarPedido with ChangeNotifier {
   Future<String> gerarPedido(String pedido) async {
-    const url = 'https://plpstore.com.br/apis/api/carrinho/inserir.php';
+    const url = '';
     final response = await http.post(Uri.parse(url), body: pedido);
     final responseData = jsonDecode(response.body);
     if (responseData['code'] == 1) {
@@ -23,7 +23,7 @@ class GerarPedido with ChangeNotifier {
   Future<Map<String, String>> criarPreferencia(
       double price, String id_user, String id_venda) async {
     String idProduct = id_user + id_venda;
-    const String url = 'https://plpstore.com.br/apiEmerson/preference.php';
+    const String url = '';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -64,7 +64,7 @@ class GerarPedido with ChangeNotifier {
   Future<List<Map<String, dynamic>>> detalhesPedido(
       String pedido, String idUsuario) async {
     String url =
-        'https://plpstore.com.br/apis/api/vendas/vendasClientesProdutos.php?idUsuario=$idUsuario&idVenda=$pedido';
+        '';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -80,15 +80,5 @@ class GerarPedido with ChangeNotifier {
     }
   }
 
-  // Future<void> verificarpagamento(String id) async {
-  //   String url = 'https://api.mercadopago.com/v1/payments/$id';
 
-  //   final response = await http.post(
-  //     Uri.parse(url),
-  //   );
-  //   if (response.statusCode == 201) {
-  //     final responseData = jsonDecode(response.body);
-  //   } else {
-  //   }
-  // }
 }

@@ -78,7 +78,7 @@ class _ProductDetailState extends State<ProductDetail> {
                           placeholder:
                               const AssetImage('assets/img/tcg_card_back.jpg'),
                           image: NetworkImage(
-                            'https://plpstore.com.br/img/produtos/${widget.data.imagem}',
+                            'url',
                           ),
                           fit: BoxFit.cover,
                           imageErrorBuilder: (context, error, stackTrace) {

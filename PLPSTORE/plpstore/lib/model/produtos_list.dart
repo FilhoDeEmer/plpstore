@@ -7,7 +7,7 @@ class Produtos with ChangeNotifier {
   int cont = 0;
 
   Future<Map<String, dynamic>> allProducts() async {
-    const url = 'https://plpstore.com.br/apis/api/produtos/listarProdutos.php';
+    const url = '';
     final response = await http.post(Uri.parse(url));
     final responseData = jsonDecode(response.body);
     Map<String, dynamic> total = await responseData['result'];
@@ -17,7 +17,7 @@ class Produtos with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> filterProducts(String term) async {
-    const url = 'https://plpstore.com.br/apis/api/produtos/listarProdutos.php';
+    const url = '';
     dynamic response = [];
     if (term.isEmpty) {
       response = await http.post(Uri.parse(url));
@@ -99,7 +99,7 @@ class ProductProvider with ChangeNotifier {
         productList.add(product);
       }
       lengthList = productList.length.toString();
-      notifyListeners(); // Notifica os ouvintes após atualizar a lista de produtos
+      notifyListeners(); 
       return productList;
     }
 
